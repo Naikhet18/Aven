@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/utils/currency.dart';
+import 'package:khao_piyo_pos/features/inventory/widgets/recipe_editor_dialog.dart';
 import 'package:khao_piyo_pos/features/menu/providers/menu_provider.dart';
 import 'package:khao_piyo_pos/features/menu/widgets/add_category_dialog.dart';
 import 'package:khao_piyo_pos/features/menu/widgets/add_menu_item_sheet.dart';
+import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
+import 'package:khao_piyo_pos/shared/models/menu_item.dart';
 
 class MenuScreen extends ConsumerWidget {
   const MenuScreen({super.key});
@@ -10,6 +14,7 @@ class MenuScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final menuStateAsync = ref.watch(menuProvider);
+    final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return Scaffold(
       appBar: AppBar(
@@ -92,13 +97,23 @@ class MenuScreen extends ConsumerWidget {
                           return Card(
                             child: ListTile(
                               title: Text(item.name),
-                              subtitle: Text('₹${item.price.toStringAsFixed(2)}'),
-                              trailing: Switch(
-                                value: item.isAvailable,
-                                onChanged: (val) {
-                                  final updated = item.copyWith(isAvailable: val);
-                                  ref.read(menuProvider.notifier).updateMenuItem(updated);
-                                },
+                              subtitle: Text(Currency.format(item.price, symbol: currencySymbol)),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.set_meal_outlined),
+                                    tooltip: 'Edit recipe',
+                                    onPressed: () => showDialog(context: context, builder: (_) => RecipeEditorDialog(menuItem: item)),
+                                  ),
+                                  Switch(
+                                    value: item.isAvailable,
+                                    onChanged: (val) {
+                                      final updated = item.copyWith(isAvailable: val);
+                                      ref.read(menuProvider.notifier).updateMenuItem(updated);
+                                    },
+                                  ),
+                                ],
                               ),
                               onTap: () => _showAddMenuItemSheet(context, ref, category.id, itemToEdit: item),
                             ),
@@ -123,7 +138,7 @@ class MenuScreen extends ConsumerWidget {
     );
   }
 
-  void _showAddMenuItemSheet(BuildContext context, WidgetRef ref, String categoryId, {itemToEdit}) {
+  void _showAddMenuItemSheet(BuildContext context, WidgetRef ref, String categoryId, {MenuItem? itemToEdit}) {
     final state = ref.read(menuProvider).valueOrNull;
     if (state == null) return;
 
