@@ -1,31 +1,60 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Widget test for DiscountDialog: the previous version of this file was the
+// unmodified `flutter create` counter-app template and tested a widget
+// (`find.byIcon(Icons.add)` / a "+1" counter) that has never existed in this
+// app.
 
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:khao_piyo_pos/main.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:khao_piyo_pos/features/orders/providers/cart_provider.dart';
+import 'package:khao_piyo_pos/features/orders/widgets/discount_dialog.dart';
+import 'package:khao_piyo_pos/shared/models/menu_item.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProviderScope(child: KhaoPiyoApp()));
+  testWidgets('applying a percentage discount updates cart state', (tester) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    container.read(cartProvider.notifier).addItem(
+          const MenuItem(id: 'a', businessId: 'biz-1', categoryId: 'cat-1', name: 'Tea', price: 100),
+        );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: DiscountDialog()),
+      ),
+    );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Percentage is selected by default; enter 15% and apply.
+    await tester.enterText(find.byType(TextField).first, '15');
+    await tester.tap(find.text('Apply'));
+    await tester.pumpAndSettle();
+
+    final cartState = container.read(cartProvider);
+    expect(cartState.discountType, 'PERCENTAGE');
+    expect(cartState.discountValue, 15);
+    expect(cartState.discount, 15); // 15% of a 100 subtotal
+  });
+
+  testWidgets('removing an applied discount clears it', (tester) async {
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+
+    container.read(cartProvider.notifier)
+      ..addItem(const MenuItem(id: 'a', businessId: 'biz-1', categoryId: 'cat-1', name: 'Tea', price: 100))
+      ..applyDiscount(type: 'FIXED', value: 20);
+
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: const MaterialApp(home: DiscountDialog()),
+      ),
+    );
+
+    await tester.tap(find.text('Remove'));
+    await tester.pumpAndSettle();
+
+    expect(container.read(cartProvider).discountType, isNull);
   });
 }
