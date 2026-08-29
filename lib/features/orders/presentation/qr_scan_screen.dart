@@ -28,6 +28,7 @@ class _QrScanScreenState extends ConsumerState<QrScanScreen> {
     ref.read(cartProvider.notifier)
       ..setOrderType('DINE_IN')
       ..setTableNumber(tableNumber);
+    ref.read(orderSetupCompleteProvider.notifier).state = true;
 
     Navigator.of(context).pop();
     context.go('/new-order');

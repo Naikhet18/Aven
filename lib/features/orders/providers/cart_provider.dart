@@ -104,6 +104,11 @@ class CartState {
   CartState clearError() => copyWith(error: null);
 }
 
+/// Whether the cashier has finished picking an order type/table for the
+/// order currently being built (see OrderSetupView). Reset whenever the
+/// cart is cleared so the next order starts fresh at the setup step.
+final orderSetupCompleteProvider = StateProvider<bool>((ref) => false);
+
 class CartNotifier extends Notifier<CartState> {
   @override
   CartState build() {
@@ -178,6 +183,7 @@ class CartNotifier extends Notifier<CartState> {
 
   void clearCart() {
     state = CartState(orderType: state.orderType);
+    ref.read(orderSetupCompleteProvider.notifier).state = false;
   }
 
   /// Saves the current cart as an order. Returns the created order on

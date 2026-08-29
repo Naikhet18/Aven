@@ -34,6 +34,26 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+
+            // Shrink + obfuscate + strip unused resources so a release build is a
+            // realistic size on a cashier's device instead of a "fat" universal
+            // debug-style APK. Combined with per-ABI splits below, a release build
+            // for a single device is typically 20-40MB instead of 150-200MB+.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true // still produce one universal APK for sideloading/testing
         }
     }
 }

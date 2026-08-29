@@ -60,7 +60,7 @@ class AppScaffold extends ConsumerWidget {
                       .toList(),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: child),
+                Expanded(child: _AnimatedTab(location: location, child: child)),
               ],
             ),
           );
@@ -69,7 +69,7 @@ class AppScaffold extends ConsumerWidget {
         final primaryIndex = _matchIndex(_primaryDestinations, location);
         final isOnSecondary = primaryIndex < 0;
         return Scaffold(
-          body: child,
+          body: _AnimatedTab(location: location, child: child),
           bottomNavigationBar: NavigationBar(
             selectedIndex: isOnSecondary ? _primaryDestinations.length : primaryIndex,
             onDestinationSelected: (index) {
@@ -126,6 +126,32 @@ class AppScaffold extends ConsumerWidget {
       },
     );
   }
+}
+
+/// Cross-fades between bottom-nav/rail destinations instead of an abrupt
+/// swap. Keyed by the top-level segment of [location] (not the full path)
+/// so navigating within a tab -- e.g. Orders -> an order's details -- keeps
+/// its own transition rather than re-triggering this one.
+class _AnimatedTab extends StatelessWidget {
+  final String location;
+  final Widget child;
+  const _AnimatedTab({required this.location, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final segment = location.split('/').skip(1).firstOrNull ?? '';
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 180),
+      switchInCurve: Curves.easeOut,
+      switchOutCurve: Curves.easeIn,
+      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      child: KeyedSubtree(key: ValueKey(segment), child: child),
+    );
+  }
+}
+
+extension _FirstOrNull<T> on Iterable<T> {
+  T? get firstOrNull => isEmpty ? null : first;
 }
 
 class _Destination {

@@ -73,7 +73,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(24),
           side: BorderSide(
-            color: base.colorScheme.outlineVariant.withOpacity(0.5),
+            color: base.colorScheme.outlineVariant.withValues(alpha: 0.5),
             width: 1,
           ),
         ),
@@ -98,7 +98,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: base.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        fillColor: base.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide.none,
@@ -119,7 +119,7 @@ class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         elevation: 0,
         backgroundColor: base.colorScheme.surface,
-        indicatorColor: primaryColor.withOpacity(0.1),
+        indicatorColor: primaryColor.withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
           GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600),
         ),
@@ -133,11 +133,38 @@ class AppTheme {
       navigationRailTheme: NavigationRailThemeData(
         elevation: 0,
         backgroundColor: base.colorScheme.surface,
-        indicatorColor: primaryColor.withOpacity(0.1),
+        indicatorColor: primaryColor.withValues(alpha: 0.1),
         selectedIconTheme: const IconThemeData(color: primaryColor, size: 32),
         unselectedIconTheme: IconThemeData(color: base.colorScheme.onSurfaceVariant, size: 28),
         selectedLabelTextStyle: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: primaryColor),
         unselectedLabelTextStyle: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w500, color: base.colorScheme.onSurfaceVariant),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: base.colorScheme.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        titleTextStyle: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        backgroundColor: base.colorScheme.inverseSurface,
+        contentTextStyle: GoogleFonts.outfit(color: base.colorScheme.onInverseSurface),
+      ),
+      chipTheme: ChipThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        side: BorderSide(color: base.colorScheme.outlineVariant.withValues(alpha: 0.4)),
+        labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
+      ),
+      splashFactory: InkSparkle.splashFactory,
+      visualDensity: VisualDensity.adaptivePlatformDensity,
+      // A softer, more modern fade-through motion for every push/pop
+      // transition (GoRouter's default MaterialPage, Navigator.push dialogs,
+      // etc.) instead of the platform-default zoom/slide.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
+        },
       ),
     );
   }

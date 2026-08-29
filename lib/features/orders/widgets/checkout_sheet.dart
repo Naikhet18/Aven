@@ -45,7 +45,6 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
   Widget build(BuildContext context) {
     final cartState = ref.watch(cartProvider);
     final settings = ref.watch(settingsProvider);
-    final tax = cartState.taxFor(settings.taxRatePercent);
     final total = cartState.totalFor(settings.taxRatePercent);
     final isWide = MediaQuery.of(context).size.width > 700;
 

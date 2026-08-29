@@ -24,6 +24,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final _footerController = TextEditingController();
   final _taxController = TextEditingController();
   final _currencyController = TextEditingController();
+  final _tableCountController = TextEditingController();
 
   final _networkHostController = TextEditingController();
   final _networkPortController = TextEditingController(text: '9100');
@@ -40,6 +41,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       _footerController.text = settings.receiptFooter;
       _taxController.text = settings.taxRatePercent.toString();
       _currencyController.text = settings.currencySymbol;
+      _tableCountController.text = settings.tableCount.toString();
 
       final config = ref.read(printerConfigProvider);
       _networkHostController.text = config.receiptNetworkHost ?? '';
@@ -56,6 +58,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     _footerController.dispose();
     _taxController.dispose();
     _currencyController.dispose();
+    _tableCountController.dispose();
     _networkHostController.dispose();
     _networkPortController.dispose();
     super.dispose();
@@ -70,6 +73,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       receiptFooter: _footerController.text,
       taxRatePercent: double.tryParse(_taxController.text) ?? 0,
       currencySymbol: _currencyController.text.trim().isEmpty ? '₹' : _currencyController.text.trim(),
+      tableCount: int.tryParse(_tableCountController.text) ?? 12,
     );
     ref.read(settingsProvider.notifier).updateSettings(settings);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -176,6 +180,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _tableCountController,
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(labelText: 'Number of dine-in tables', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 16),
           TextField(

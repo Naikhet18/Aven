@@ -139,7 +139,7 @@ class OrderDetailsScreen extends ConsumerWidget {
               Text('Payments', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
               paymentsAsync.when(
                 loading: () => const Padding(padding: EdgeInsets.all(16), child: LinearProgressIndicator()),
-                error: (_, __) => const Text('Could not load payments'),
+                error: (_, _) => const Text('Could not load payments'),
                 data: (payments) {
                   if (payments.isEmpty) {
                     return const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('No payments recorded yet.'));
