@@ -133,7 +133,7 @@ class _AddMenuItemSheetState extends ConsumerState<AddMenuItemSheet> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedCategoryId,
+                initialValue: _selectedCategoryId,
                 decoration: const InputDecoration(labelText: 'Category'),
                 items: widget.categories.map((c) {
                   return DropdownMenuItem(value: c.id, child: Text(c.name));

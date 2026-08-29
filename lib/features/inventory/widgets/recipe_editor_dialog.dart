@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
-import 'package:khao_piyo_pos/features/inventory/providers/inventory_provider.dart';
 import 'package:khao_piyo_pos/shared/models/ingredient.dart';
 import 'package:khao_piyo_pos/shared/models/menu_item.dart';
 import 'package:khao_piyo_pos/shared/models/recipe.dart';

@@ -71,12 +71,12 @@ class DashboardScreen extends ConsumerWidget {
                           value: reportAsync.when(
                             data: (r) => Currency.format(r.totalRevenue, symbol: settings.currencySymbol),
                             loading: () => '…',
-                            error: (_, __) => '—',
+                            error: (_, _) => '—',
                           ),
                           trend: reportAsync.when(
                             data: (r) => '${r.totalOrders} completed orders today',
                             loading: () => '',
-                            error: (_, __) => 'Could not load',
+                            error: (_, _) => 'Could not load',
                           ),
                           icon: Icons.trending_up,
                           color: Theme.of(context).colorScheme.primary,
@@ -86,7 +86,7 @@ class DashboardScreen extends ConsumerWidget {
                           value: activeOrdersAsync.when(
                             data: (orders) => '${orders.length}',
                             loading: () => '…',
-                            error: (_, __) => '—',
+                            error: (_, _) => '—',
                           ),
                           trend: 'Being prepared right now',
                           icon: Icons.receipt_long,
@@ -98,12 +98,12 @@ class DashboardScreen extends ConsumerWidget {
                           value: lowStockAsync.when(
                             data: (items) => '${items.length}',
                             loading: () => '…',
-                            error: (_, __) => '—',
+                            error: (_, _) => '—',
                           ),
                           trend: lowStockAsync.when(
                             data: (items) => items.isEmpty ? 'All stocked up' : items.take(3).map((i) => i.name).join(', '),
                             loading: () => '',
-                            error: (_, __) => 'Could not load',
+                            error: (_, _) => 'Could not load',
                           ),
                           icon: Icons.inventory_2,
                           color: Colors.redAccent,
@@ -114,7 +114,7 @@ class DashboardScreen extends ConsumerWidget {
                           value: unpaidOrdersAsync.when(
                             data: (orders) => '${orders.length}',
                             loading: () => '…',
-                            error: (_, __) => '—',
+                            error: (_, _) => '—',
                           ),
                           trend: 'Awaiting payment',
                           icon: Icons.payments_outlined,

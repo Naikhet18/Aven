@@ -16,7 +16,7 @@ class _AddExpenseDialogState extends ConsumerState<AddExpenseDialog> {
   String _category = kExpenseCategories.first;
   final _amountController = TextEditingController();
   final _notesController = TextEditingController();
-  DateTime _date = DateTime.now();
+  final DateTime _date = DateTime.now();
 
   @override
   void dispose() {
