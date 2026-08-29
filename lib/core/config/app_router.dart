@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:khao_piyo_pos/features/menu/presentation/menu_screen.dart';
 import 'package:khao_piyo_pos/features/orders/presentation/new_order_screen.dart';
@@ -23,18 +24,27 @@ final appRouter = GoRouter(
   initialLocation: '/',
   redirect: (context, state) async {
     final prefs = await SharedPreferences.getInstance();
-    final businessId = prefs.getString('business_id');
-    
+    var businessId = prefs.getString('business_id');
+
+    // A locally-remembered business_id doesn't mean the Supabase session is
+    // still valid (e.g. the user signed out elsewhere, or the token
+    // expired without a stored refresh token). Treat a missing session the
+    // same as never having logged in.
+    if (businessId != null && Supabase.instance.client.auth.currentSession == null) {
+      await prefs.remove('business_id');
+      businessId = null;
+    }
+
     final isLoggingIn = state.matchedLocation == '/login';
-    
+
     if (businessId == null && !isLoggingIn) {
       return '/login';
     }
-    
+
     if (businessId != null && isLoggingIn) {
       return '/';
     }
-    
+
     return null;
   },
   routes: [
