@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
+import 'package:khao_piyo_pos/features/settings/providers/printer_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/customer.dart';
 import 'package:khao_piyo_pos/shared/models/menu_item.dart';
@@ -236,6 +239,11 @@ class CartNotifier extends Notifier<CartState> {
       }).toList();
 
       await orderRepo.createOrder(order, orderItems);
+
+      if (ref.read(printerConfigProvider).kotAutoPrint) {
+        // Best-effort: a printer hiccup shouldn't block the order from saving.
+        unawaited(ref.read(printerServiceProvider).printKitchenTicket(order, orderItems));
+      }
 
       // Deduct stock for any item that has a recipe defined. Best-effort:
       // an inventory hiccup shouldn't block the order from being placed.

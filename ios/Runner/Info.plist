@@ -26,6 +26,12 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>KhaoPiyo connects to your Bluetooth thermal printer to print receipts and kitchen tickets.</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>KhaoPiyo connects to your Bluetooth thermal printer to print receipts and kitchen tickets.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>KhaoPiyo uses the camera to scan table QR codes and start an order.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
