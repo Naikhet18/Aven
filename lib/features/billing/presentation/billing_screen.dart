@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/billing/providers/billing_provider.dart';
 import 'package:khao_piyo_pos/features/billing/widgets/checkout_dialog.dart';
+import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:intl/intl.dart';
 
 class BillingScreen extends ConsumerWidget {
@@ -10,6 +12,7 @@ class BillingScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final unpaidOrdersAsync = ref.watch(unpaidOrdersStreamProvider);
+    final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return Scaffold(
       appBar: AppBar(
@@ -49,7 +52,7 @@ class BillingScreen extends ConsumerWidget {
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      '${order.orderType} • $timeString\nStatus: ${order.status}',
+                      '${order.orderType} • $timeString\nStatus: ${order.status} • ${order.paymentStatus}',
                       style: const TextStyle(fontSize: 14),
                     ),
                   ),
@@ -59,7 +62,7 @@ class BillingScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        '₹${order.total.toStringAsFixed(2)}',
+                        Currency.format(order.total, symbol: currencySymbol),
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
