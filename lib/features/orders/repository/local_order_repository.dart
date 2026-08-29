@@ -29,7 +29,7 @@ class LocalOrderRepository implements OrderRepository {
       ..where((t) => t.businessId.equals(businessId))
       ..where((t) => t.createdAt.isBetweenValues(start, end))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]);
-      
+
     final results = await query.get();
     return results.map(_mapOrderFromDb).toList();
   }
@@ -48,7 +48,7 @@ class LocalOrderRepository implements OrderRepository {
   Stream<List<model.Order>> watchUnpaidOrders(String businessId) {
     final query = _db.select(_db.orders)
       ..where((t) => t.businessId.equals(businessId))
-      ..where((t) => t.paymentStatus.equals('UNPAID'))
+      ..where((t) => t.paymentStatus.isIn(['UNPAID', 'PARTIALLY_PAID']))
       ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]);
 
     return query.watch().map((rows) => rows.map(_mapOrderFromDb).toList());
@@ -78,12 +78,11 @@ class LocalOrderRepository implements OrderRepository {
       }
     });
 
-    // Queue for sync
     await _syncService.queueMutation(
       operation: 'INSERT',
       targetTable: 'orders',
       recordId: order.id,
-      payload: _orderToJson(order), // We need an _orderToJson helper
+      payload: order.toJson(),
     );
 
     for (final item in items) {
@@ -91,7 +90,7 @@ class LocalOrderRepository implements OrderRepository {
         operation: 'INSERT',
         targetTable: 'order_items',
         recordId: item.id,
-        payload: _orderItemToJson(item),
+        payload: item.toJson(),
       );
     }
   }
@@ -103,8 +102,7 @@ class LocalOrderRepository implements OrderRepository {
       status: Value(status),
       updatedAt: Value(DateTime.now()),
     ));
-    
-    // Queue for sync
+
     await _syncService.queueMutation(
       operation: 'UPDATE',
       targetTable: 'orders',
@@ -120,8 +118,7 @@ class LocalOrderRepository implements OrderRepository {
       paymentStatus: Value(paymentStatus),
       updatedAt: Value(DateTime.now()),
     ));
-    
-    // Queue for sync
+
     await _syncService.queueMutation(
       operation: 'UPDATE',
       targetTable: 'orders',
@@ -131,30 +128,27 @@ class LocalOrderRepository implements OrderRepository {
   }
 
   @override
-  Future<String> generateNextOrderNumber(String businessId) async {
+  Future<String> generateNextOrderNumber(String businessId, String deviceId, String deviceTag) async {
     final today = DateTime.now();
-    final datePrefix = DateFormat('yyMMdd').format(today); // e.g., 260828
-
-    // Get all orders created today for this business
+    final datePrefix = DateFormat('yyMMdd').format(today);
     final startOfDay = DateTime(today.year, today.month, today.day);
     final endOfDay = DateTime(today.year, today.month, today.day, 23, 59, 59, 999);
 
+    // Count only orders created by *this* device today: combined with the
+    // device tag in the label, this makes it unique across devices without
+    // needing a network round-trip (the app must work offline).
     final query = _db.select(_db.orders)
       ..where((t) => t.businessId.equals(businessId))
-      ..where((t) => t.createdAt.isBetweenValues(startOfDay, endOfDay))
-      ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]);
+      ..where((t) => t.createdByDevice.equals(deviceId))
+      ..where((t) => t.createdAt.isBetweenValues(startOfDay, endOfDay));
 
-    final ordersToday = await query.get();
-    final count = ordersToday.length;
-
-    // Simple auto-increment
-    final nextNumber = count + 1;
+    final countToday = await query.get();
+    final nextNumber = countToday.length + 1;
     final paddedNumber = nextNumber.toString().padLeft(3, '0');
 
-    return '$datePrefix-$paddedNumber'; // e.g., 260828-001
+    return '$datePrefix-$deviceTag-$paddedNumber';
   }
 
-  // --- Mappers ---
   @override
   Future<List<model.Order>> getOrdersSince(String businessId, DateTime since) async {
     final query = _db.select(_db.orders)
@@ -169,37 +163,27 @@ class LocalOrderRepository implements OrderRepository {
   @override
   Future<void> upsertOrder(model.Order order) async {
     await _db.into(_db.orders).insertOnConflictUpdate(_createOrderCompanion(order));
-    
-    // Queue for sync
+
     await _syncService.queueMutation(
-      operation: 'UPSERT', // or UPDATE
+      operation: 'UPSERT',
       targetTable: 'orders',
       recordId: order.id,
-      payload: _orderToJson(order),
+      payload: order.toJson(),
     );
   }
 
-  Map<String, dynamic> _orderToJson(model.Order o) {
-    return {
-      'id': o.id,
-      'business_id': o.businessId,
-      'order_number': o.orderNumber,
-      'order_type': o.orderType,
-      'table_number': o.tableNumber,
-      'status': o.status,
-      'payment_status': o.paymentStatus,
-      'subtotal': o.subtotal,
-      'tax': o.tax,
-      'discount': o.discount,
-      'total': o.total,
-      'created_by_device': o.createdByDevice,
-      'created_at': o.createdAt?.toIso8601String(),
-      'updated_at': o.updatedAt?.toIso8601String(),
-      'customer_id': o.customerId,
-      'discount_type': o.discountType,
-      'discount_reason': o.discountReason,
-    };
+  /// Merges an order pulled/received from Supabase. Does NOT re-queue a push
+  /// -- this row already came *from* the server.
+  Future<void> upsertOrderFromRemote(model.Order order) async {
+    await _db.into(_db.orders).insertOnConflictUpdate(_createOrderCompanion(order));
   }
+
+  @override
+  Future<void> upsertOrderItem(model.OrderItem item) async {
+    await _db.into(_db.orderItems).insertOnConflictUpdate(_createOrderItemCompanion(item));
+  }
+
+  // --- Mappers ---
 
   model.Order _mapOrderFromDb(OrderEntity e) {
     return model.Order(
@@ -256,19 +240,6 @@ class LocalOrderRepository implements OrderRepository {
       notes: e.notes,
       total: e.total,
     );
-  }
-
-  Map<String, dynamic> _orderItemToJson(model.OrderItem item) {
-    return {
-      'id': item.id,
-      'order_id': item.orderId,
-      'menu_item_id': item.menuItemId,
-      'item_name_snapshot': item.itemNameSnapshot,
-      'unit_price': item.unitPrice,
-      'quantity': item.quantity,
-      'notes': item.notes,
-      'total': item.total,
-    };
   }
 
   OrderItemsCompanion _createOrderItemCompanion(model.OrderItem item) {

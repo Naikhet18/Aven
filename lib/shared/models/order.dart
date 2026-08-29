@@ -40,6 +40,46 @@ class Order {
     this.syncStatus = 'SYNCED',
   });
 
+  factory Order.fromJson(Map<String, dynamic> json) => Order(
+        id: json['id'] as String,
+        businessId: json['business_id'] as String,
+        orderNumber: json['order_number'] as String,
+        orderType: json['order_type'] as String,
+        tableNumber: json['table_number'] as String?,
+        status: json['status'] as String,
+        paymentStatus: json['payment_status'] as String,
+        subtotal: (json['subtotal'] as num).toDouble(),
+        tax: (json['tax'] as num).toDouble(),
+        discount: (json['discount'] as num).toDouble(),
+        total: (json['total'] as num).toDouble(),
+        createdByDevice: json['created_by_device'] as String?,
+        createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+        updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+        customerId: json['customer_id'] as String?,
+        discountType: json['discount_type'] as String?,
+        discountReason: json['discount_reason'] as String?,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'business_id': businessId,
+        'order_number': orderNumber,
+        'order_type': orderType,
+        'table_number': tableNumber,
+        'status': status,
+        'payment_status': paymentStatus,
+        'subtotal': subtotal,
+        'tax': tax,
+        'discount': discount,
+        'total': total,
+        'created_by_device': createdByDevice,
+        'created_at': createdAt?.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+        'customer_id': customerId,
+        'discount_type': discountType,
+        'discount_reason': discountReason,
+      };
+
   Order copyWith({
     String? id,
     String? businessId,

@@ -19,6 +19,28 @@ class OrderItem {
     required this.total,
   });
 
+  factory OrderItem.fromJson(Map<String, dynamic> json) => OrderItem(
+        id: json['id'] as String,
+        orderId: json['order_id'] as String,
+        menuItemId: json['menu_item_id'] as String,
+        itemNameSnapshot: json['item_name_snapshot'] as String,
+        unitPrice: (json['unit_price'] as num).toDouble(),
+        quantity: (json['quantity'] as num).toDouble(),
+        notes: json['notes'] as String?,
+        total: (json['total'] as num).toDouble(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'order_id': orderId,
+        'menu_item_id': menuItemId,
+        'item_name_snapshot': itemNameSnapshot,
+        'unit_price': unitPrice,
+        'quantity': quantity,
+        'notes': notes,
+        'total': total,
+      };
+
   OrderItem copyWith({
     String? id,
     String? orderId,

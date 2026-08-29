@@ -16,7 +16,11 @@ abstract class OrderRepository {
   Future<void> updateOrderStatus(String orderId, String status);
   Future<void> updatePaymentStatus(String orderId, String paymentStatus);
   Future<void> upsertOrder(Order order);
+  Future<void> upsertOrderItem(OrderItem item);
 
-  /// Generates the next sequential order number for today
-  Future<String> generateNextOrderNumber(String businessId);
+  /// Generates the next order number for today, unique per device so two
+  /// devices creating orders offline at the same time never collide.
+  /// [deviceId] is the FK stored on the order; [deviceTag] is the short
+  /// human-readable code embedded in the printed order number.
+  Future<String> generateNextOrderNumber(String businessId, String deviceId, String deviceTag);
 }

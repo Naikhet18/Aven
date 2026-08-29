@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/menu/providers/menu_provider.dart';
 import 'package:khao_piyo_pos/features/orders/providers/cart_provider.dart';
+import 'package:khao_piyo_pos/features/orders/widgets/attach_customer_dialog.dart';
+import 'package:khao_piyo_pos/features/orders/widgets/checkout_sheet.dart';
+import 'package:khao_piyo_pos/features/orders/widgets/discount_dialog.dart';
+import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/category.dart';
 
 class NewOrderScreen extends ConsumerWidget {
@@ -11,6 +16,8 @@ class NewOrderScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isWide = MediaQuery.of(context).size.width > 750;
     final cartState = ref.watch(cartProvider);
+    final settings = ref.watch(settingsProvider);
+    final total = cartState.totalFor(settings.taxRatePercent);
 
     if (isWide) {
       return Scaffold(
@@ -62,7 +69,7 @@ class NewOrderScreen extends ConsumerWidget {
                   style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
                 ),
                 Text(
-                  '₹${cartState.total.toStringAsFixed(2)}', 
+                  Currency.format(total, symbol: settings.currencySymbol),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
                 ),
               ],
@@ -84,6 +91,7 @@ class _MenuSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final menuStateAsync = ref.watch(menuProvider);
     final selectedCategoryId = ref.watch(selectedCategoryProvider);
+    final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return menuStateAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -194,7 +202,7 @@ class _MenuSection extends ConsumerWidget {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              '₹${item.price.toStringAsFixed(2)}',
+                              Currency.format(item.price, symbol: currencySymbol),
                               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.primary,
                                     fontWeight: FontWeight.w800,
@@ -273,6 +281,9 @@ class _CartSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cartState = ref.watch(cartProvider);
     final cartNotifier = ref.read(cartProvider.notifier);
+    final settings = ref.watch(settingsProvider);
+    final tax = cartState.taxFor(settings.taxRatePercent);
+    final total = cartState.totalFor(settings.taxRatePercent);
 
     return Container(
       color: Theme.of(context).scaffoldBackgroundColor,
@@ -311,6 +322,16 @@ class _CartSection extends ConsumerWidget {
                   onSelectionChanged: (set) {
                     if (set.isNotEmpty) cartNotifier.setOrderType(set.first);
                   },
+                ),
+                const SizedBox(height: 12),
+                InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () => showDialog(context: context, builder: (_) => const AttachCustomerDialog()),
+                  child: Chip(
+                    avatar: const Icon(Icons.person_outline, size: 18),
+                    label: Text(cartState.customer?.name ?? cartState.customer?.phone ?? 'Attach customer'),
+                    onDeleted: cartState.customer == null ? null : cartNotifier.detachCustomer,
+                  ),
                 ),
               ],
             ),
@@ -382,7 +403,7 @@ class _CartSection extends ConsumerWidget {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    '₹${cartItem.menuItem.price.toStringAsFixed(2)}',
+                                    Currency.format(cartItem.menuItem.price, symbol: settings.currencySymbol),
                                     style: TextStyle(
                                       color: Theme.of(context).colorScheme.primary,
                                       fontWeight: FontWeight.w600,
@@ -393,7 +414,7 @@ class _CartSection extends ConsumerWidget {
                             ),
                             // Total for item
                             Text(
-                              '₹${(cartItem.menuItem.price * cartItem.quantity).toStringAsFixed(2)}',
+                              Currency.format(cartItem.menuItem.price * cartItem.quantity, symbol: settings.currencySymbol),
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                             ),
                           ],
@@ -446,15 +467,31 @@ class _CartSection extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Subtotal', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                    Text('₹${cartState.total.toStringAsFixed(2)}', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text(Currency.format(cartState.subtotal, symbol: settings.currencySymbol), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
+                if (cartState.discountType != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        cartState.discountType == 'PERCENTAGE' ? 'Discount (${cartState.discountValue.toStringAsFixed(0)}%)' : 'Discount',
+                        style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                      Text(
+                        '-${Currency.format(cartState.discount, symbol: settings.currencySymbol)}',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Tax (0%)', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
-                    const Text('₹0.00', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('Tax (${settings.taxRatePercent.toStringAsFixed(0)}%)', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text(Currency.format(tax, symbol: settings.currencySymbol), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   ],
                 ),
                 const Padding(
@@ -466,9 +503,9 @@ class _CartSection extends ConsumerWidget {
                   children: [
                     const Text('Total', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
                     Text(
-                      '₹${cartState.total.toStringAsFixed(2)}',
+                      Currency.format(total, symbol: settings.currencySymbol),
                       style: TextStyle(
-                        fontSize: 28, 
+                        fontSize: 28,
                         fontWeight: FontWeight.w900,
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -476,22 +513,18 @@ class _CartSection extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 24),
-                
-                // Advanced Checkout Actions (Addressing Restokeep limitations)
+
                 Row(
                   children: [
-                    // Split Payment Button
+                    // Discount Button
                     Expanded(
                       flex: 1,
                       child: OutlinedButton.icon(
-                        onPressed: cartState.items.isEmpty ? null : () {
-                          // TODO: Implement split billing modal
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Split Payment feature coming soon!')),
-                          );
-                        },
-                        icon: const Icon(Icons.call_split),
-                        label: const Text('Split'),
+                        onPressed: cartState.items.isEmpty
+                            ? null
+                            : () => showDialog(context: context, builder: (_) => const DiscountDialog()),
+                        icon: const Icon(Icons.sell_outlined),
+                        label: const Text('Discount'),
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -505,13 +538,13 @@ class _CartSection extends ConsumerWidget {
                       child: FilledButton.icon(
                         onPressed: cartState.items.isEmpty || cartState.isSaving
                             ? null
-                            : () async {
-                                final success = await cartNotifier.saveOrder();
-                                if (success && context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Order Saved Successfully!')),
-                                  );
-                                }
+                            : () {
+                                showModalBottomSheet(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => const CheckoutSheet(),
+                                );
                               },
                         icon: cartState.isSaving 
                           ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) 

@@ -7,6 +7,9 @@ class BusinessSettings {
   final String phone;
   final String gstNumber;
   final String receiptFooter;
+  final double taxRatePercent;
+  final String currencySymbol;
+  final int loyaltyPointsPerCurrencyUnit; // e.g. 1 point earned per 100 spent
 
   BusinessSettings({
     required this.name,
@@ -14,6 +17,9 @@ class BusinessSettings {
     required this.phone,
     required this.gstNumber,
     required this.receiptFooter,
+    this.taxRatePercent = 0,
+    this.currencySymbol = '₹',
+    this.loyaltyPointsPerCurrencyUnit = 100,
   });
 
   BusinessSettings copyWith({
@@ -22,6 +28,9 @@ class BusinessSettings {
     String? phone,
     String? gstNumber,
     String? receiptFooter,
+    double? taxRatePercent,
+    String? currencySymbol,
+    int? loyaltyPointsPerCurrencyUnit,
   }) {
     return BusinessSettings(
       name: name ?? this.name,
@@ -29,6 +38,9 @@ class BusinessSettings {
       phone: phone ?? this.phone,
       gstNumber: gstNumber ?? this.gstNumber,
       receiptFooter: receiptFooter ?? this.receiptFooter,
+      taxRatePercent: taxRatePercent ?? this.taxRatePercent,
+      currencySymbol: currencySymbol ?? this.currencySymbol,
+      loyaltyPointsPerCurrencyUnit: loyaltyPointsPerCurrencyUnit ?? this.loyaltyPointsPerCurrencyUnit,
     );
   }
 }
@@ -43,6 +55,9 @@ class SettingsNotifier extends Notifier<BusinessSettings> {
       phone: prefs.getString('setting_business_phone') ?? '1234567890',
       gstNumber: prefs.getString('setting_business_gst') ?? '',
       receiptFooter: prefs.getString('setting_receipt_footer') ?? 'Thank you for your visit!',
+      taxRatePercent: prefs.getDouble('setting_tax_rate') ?? 0,
+      currencySymbol: prefs.getString('setting_currency_symbol') ?? '₹',
+      loyaltyPointsPerCurrencyUnit: prefs.getInt('setting_loyalty_rate') ?? 100,
     );
   }
 
@@ -53,7 +68,10 @@ class SettingsNotifier extends Notifier<BusinessSettings> {
     await prefs.setString('setting_business_phone', newSettings.phone);
     await prefs.setString('setting_business_gst', newSettings.gstNumber);
     await prefs.setString('setting_receipt_footer', newSettings.receiptFooter);
-    
+    await prefs.setDouble('setting_tax_rate', newSettings.taxRatePercent);
+    await prefs.setString('setting_currency_symbol', newSettings.currencySymbol);
+    await prefs.setInt('setting_loyalty_rate', newSettings.loyaltyPointsPerCurrencyUnit);
+
     state = newSettings;
   }
 }

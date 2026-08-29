@@ -2,22 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/config/app_router.dart';
+import 'package:khao_piyo_pos/core/config/env.dart';
 import 'package:khao_piyo_pos/core/theme/app_theme.dart';
-import 'package:khao_piyo_pos/core/sync/sync_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  try {
-    await Supabase.initialize(
-      url: const String.fromEnvironment('SUPABASE_URL', defaultValue: 'http://127.0.0.1:54321'),
-      publishableKey: const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRlZmF1bHQiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcyNDgzMjc3NiwiZXhwIjoyMDQwMDMyNzc2fQ.y2p-r7o_vU6O1-C8g7BwB8F2ZkX7X7G4Yx1x-3U7aDk'), // Default local anon key
-    );
-  } catch (e) {
-    debugPrint('Supabase initialization failed: $e');
-  }
+  Env.assertConfigured();
+
+  await Supabase.initialize(
+    url: Env.supabaseUrl,
+    anonKey: Env.supabaseAnonKey,
+  );
 
   final prefs = await SharedPreferences.getInstance();
 
@@ -42,8 +39,23 @@ class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
   @override
   void initState() {
     super.initState();
-    // Start the sync service
-    ref.read(syncServiceProvider).start();
+    // Wires every repository's pull-merge handler into the sync engine --
+    // must happen before the engine is ever started.
+    ref.read(syncRegistryProvider);
+
+    final businessId = ref.read(currentBusinessIdProvider);
+    if (businessId != null) {
+      ref.read(syncServiceProvider).start(businessId);
+    }
+
+    ref.listenManual<String?>(currentBusinessIdProvider, (previous, next) {
+      final syncService = ref.read(syncServiceProvider);
+      if (next != null) {
+        syncService.start(next);
+      } else {
+        syncService.stop();
+      }
+    });
   }
 
   @override

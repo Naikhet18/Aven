@@ -17,6 +17,26 @@ class Category {
     this.deletedAt,
   });
 
+  factory Category.fromJson(Map<String, dynamic> json) => Category(
+        id: json['id'] as String,
+        businessId: json['business_id'] as String,
+        name: json['name'] as String,
+        sortOrder: (json['sort_order'] as num?)?.toInt() ?? 0,
+        createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
+        updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at'] as String) : null,
+        deletedAt: json['deleted_at'] != null ? DateTime.parse(json['deleted_at'] as String) : null,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'business_id': businessId,
+        'name': name,
+        'sort_order': sortOrder,
+        'created_at': createdAt?.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+        'deleted_at': deletedAt?.toIso8601String(),
+      };
+
   Category copyWith({
     String? id,
     String? businessId,

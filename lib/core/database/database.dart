@@ -181,6 +181,20 @@ class AuditLogs extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('PaymentEntity')
+class Payments extends Table {
+  TextColumn get id => text()();
+  TextColumn get orderId => text()();
+  TextColumn get businessId => text()();
+  TextColumn get paymentMethod => text()(); // CASH, UPI, CARD, OTHER
+  RealColumn get amount => real()();
+  DateTimeColumn get paymentTime => dateTime().nullable()();
+  TextColumn get deviceId => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('SyncOperationEntity')
 class SyncOperations extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -194,9 +208,9 @@ class SyncOperations extends Table {
 }
 
 @DriftDatabase(tables: [
-  Categories, 
-  MenuItems, 
-  Orders, 
+  Categories,
+  MenuItems,
+  Orders,
   OrderItems,
   Ingredients,
   Recipes,
@@ -205,14 +219,15 @@ class SyncOperations extends Table {
   Expenses,
   Suppliers,
   AuditLogs,
+  Payments,
   SyncOperations
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2; // Incremented version
-  
+  int get schemaVersion => 3;
+
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
@@ -231,10 +246,13 @@ class AppDatabase extends _$AppDatabase {
           await m.createTable(suppliers);
           await m.createTable(auditLogs);
           await m.createTable(syncOperations);
-          
+
           await m.addColumn(orders, orders.customerId);
           await m.addColumn(orders, orders.discountType);
           await m.addColumn(orders, orders.discountReason);
+        }
+        if (from < 3) {
+          await m.createTable(payments);
         }
       },
     );
