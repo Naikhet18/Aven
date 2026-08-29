@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:khao_piyo_pos/core/utils/currency.dart';
+import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/order.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +20,7 @@ class OrdersScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersAsync = ref.watch(ordersListProvider);
+    final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return Scaffold(
       appBar: AppBar(
@@ -45,7 +49,7 @@ class OrdersScreen extends ConsumerWidget {
                 child: ListTile(
                   title: Text('Order #${order.orderNumber} - ${order.orderType}'),
                   subtitle: Text(
-                    '${order.status} • ₹${order.total.toStringAsFixed(2)}\n'
+                    '${order.status} • ${Currency.format(order.total, symbol: currencySymbol)}\n'
                     '${order.createdAt != null ? DateFormat('dd MMM, hh:mm a').format(order.createdAt!) : ''}',
                   ),
                   isThreeLine: true,
@@ -55,9 +59,7 @@ class OrdersScreen extends ConsumerWidget {
                         ? Colors.green.shade100
                         : Colors.orange.shade100,
                   ),
-                  onTap: () {
-                    // TODO: Navigate to order details
-                  },
+                  onTap: () => context.go('/orders/${order.id}'),
                 ),
               );
             },

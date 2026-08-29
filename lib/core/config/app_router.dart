@@ -13,6 +13,10 @@ import 'package:khao_piyo_pos/features/auth/presentation/login_screen.dart';
 import 'package:khao_piyo_pos/features/settings/presentation/settings_screen.dart';
 
 import 'package:khao_piyo_pos/features/reports/presentation/reports_screen.dart';
+import 'package:khao_piyo_pos/features/inventory/presentation/inventory_screen.dart';
+import 'package:khao_piyo_pos/features/customers/presentation/customers_screen.dart';
+import 'package:khao_piyo_pos/features/finance/presentation/finance_screen.dart';
+import 'package:khao_piyo_pos/features/orders/presentation/order_details_screen.dart';
 
 import 'package:khao_piyo_pos/shared/widgets/app_scaffold.dart';
 
@@ -70,6 +74,13 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/orders',
           builder: (context, state) => const OrdersScreen(),
+          routes: [
+            GoRoute(
+              path: ':id',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) => OrderDetailsScreen(orderId: state.pathParameters['id']!),
+            ),
+          ],
         ),
         GoRoute(
           path: '/new-order',
@@ -86,6 +97,18 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/reports',
           builder: (context, state) => const ReportsScreen(),
+        ),
+        GoRoute(
+          path: '/inventory',
+          builder: (context, state) => const InventoryScreen(),
+        ),
+        GoRoute(
+          path: '/customers',
+          builder: (context, state) => const CustomersScreen(),
+        ),
+        GoRoute(
+          path: '/finance',
+          builder: (context, state) => const FinanceScreen(),
         ),
         GoRoute(
           path: '/settings',

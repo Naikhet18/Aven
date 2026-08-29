@@ -8,30 +8,50 @@ class AppScaffold extends ConsumerWidget {
 
   const AppScaffold({super.key, required this.child});
 
+  // Shown directly in the bottom nav bar (mobile) and always visible in the
+  // rail (tablet/desktop) -- the screens a cashier touches constantly.
+  static const List<_Destination> _primaryDestinations = [
+    _Destination('Dashboard', '/', Icons.dashboard_outlined, Icons.dashboard),
+    _Destination('New Order', '/new-order', Icons.point_of_sale_outlined, Icons.point_of_sale),
+    _Destination('Kitchen', '/kitchen', Icons.kitchen_outlined, Icons.kitchen),
+    _Destination('Billing', '/billing', Icons.payments_outlined, Icons.payments),
+  ];
+
+  // Shown in the rail alongside the primary destinations on wide screens;
+  // tucked behind a "More" sheet on mobile so the bottom bar doesn't end up
+  // with ten items.
+  static const List<_Destination> _secondaryDestinations = [
+    _Destination('Orders', '/orders', Icons.receipt_long_outlined, Icons.receipt_long),
+    _Destination('Menu', '/menu', Icons.restaurant_menu_outlined, Icons.restaurant_menu),
+    _Destination('Inventory', '/inventory', Icons.inventory_2_outlined, Icons.inventory_2),
+    _Destination('Customers', '/customers', Icons.people_outline, Icons.people),
+    _Destination('Finance', '/finance', Icons.account_balance_wallet_outlined, Icons.account_balance_wallet),
+    _Destination('Reports', '/reports', Icons.bar_chart_outlined, Icons.bar_chart),
+    _Destination('Settings', '/settings', Icons.settings_outlined, Icons.settings),
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Only show navigation if authenticated
     final authState = ref.watch(authStateProvider);
     if (!authState) {
       return child;
     }
 
     final location = GoRouterState.of(context).matchedLocation;
-    
-    int currentIndex = _calculateSelectedIndex(location);
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Wide screen (tablet/desktop) -> NavigationRail
         if (constraints.maxWidth >= 600) {
+          final all = [..._primaryDestinations, ..._secondaryDestinations];
+          final selectedIndex = _matchIndex(all, location);
           return Scaffold(
             body: Row(
               children: [
                 NavigationRail(
-                  selectedIndex: currentIndex,
-                  onDestinationSelected: (index) => _onItemTapped(index, context),
+                  selectedIndex: selectedIndex < 0 ? null : selectedIndex,
+                  onDestinationSelected: (index) => context.go(all[index].path),
                   labelType: NavigationRailLabelType.all,
-                  destinations: _navDestinations
+                  destinations: all
                       .map((d) => NavigationRailDestination(
                             icon: Icon(d.icon),
                             selectedIcon: Icon(d.selectedIcon),
@@ -46,76 +66,73 @@ class AppScaffold extends ConsumerWidget {
           );
         }
 
-        // Narrow screen (mobile) -> NavigationBar
+        final primaryIndex = _matchIndex(_primaryDestinations, location);
+        final isOnSecondary = primaryIndex < 0;
         return Scaffold(
           body: child,
           bottomNavigationBar: NavigationBar(
-            selectedIndex: currentIndex,
-            onDestinationSelected: (index) => _onItemTapped(index, context),
-            destinations: _navDestinations
-                .map((d) => NavigationDestination(
-                      icon: Icon(d.icon),
-                      selectedIcon: Icon(d.selectedIcon),
-                      label: d.label,
-                    ))
-                .toList(),
+            selectedIndex: isOnSecondary ? _primaryDestinations.length : primaryIndex,
+            onDestinationSelected: (index) {
+              if (index == _primaryDestinations.length) {
+                _showMoreSheet(context, location);
+              } else {
+                context.go(_primaryDestinations[index].path);
+              }
+            },
+            destinations: [
+              ..._primaryDestinations.map((d) => NavigationDestination(
+                    icon: Icon(d.icon),
+                    selectedIcon: Icon(d.selectedIcon),
+                    label: d.label,
+                  )),
+              const NavigationDestination(icon: Icon(Icons.more_horiz), label: 'More'),
+            ],
           ),
         );
       },
     );
   }
 
-  static int _calculateSelectedIndex(String location) {
-    if (location.startsWith('/menu')) return 1;
-    if (location.startsWith('/orders') || location.startsWith('/new-order')) return 2;
-    if (location.startsWith('/kitchen')) return 3;
-    if (location.startsWith('/billing')) return 4;
-    if (location.startsWith('/reports')) return 5;
-    if (location.startsWith('/settings')) return 6;
-    return 0; // Dashboard (or default)
-  }
-
-  void _onItemTapped(int index, BuildContext context) {
-    switch (index) {
-      case 0:
-        context.go('/');
-        break;
-      case 1:
-        context.go('/menu');
-        break;
-      case 2:
-        context.go('/orders');
-        break;
-      case 3:
-        context.go('/kitchen');
-        break;
-      case 4:
-        context.go('/billing');
-        break;
-      case 5:
-        context.go('/reports');
-        break;
-      case 6:
-        context.go('/settings');
-        break;
+  static int _matchIndex(List<_Destination> destinations, String location) {
+    for (var i = 0; i < destinations.length; i++) {
+      final path = destinations[i].path;
+      if (path == '/' ? location == '/' : location.startsWith(path)) return i;
     }
+    return -1;
   }
 
-  static const List<_Destination> _navDestinations = [
-    _Destination('Dashboard', Icons.dashboard_outlined, Icons.dashboard),
-    _Destination('Menu', Icons.restaurant_menu_outlined, Icons.restaurant_menu),
-    _Destination('Orders', Icons.receipt_long_outlined, Icons.receipt_long),
-    _Destination('Kitchen', Icons.kitchen_outlined, Icons.kitchen),
-    _Destination('Billing', Icons.point_of_sale_outlined, Icons.point_of_sale),
-    _Destination('Reports', Icons.bar_chart_outlined, Icons.bar_chart),
-    _Destination('Settings', Icons.settings_outlined, Icons.settings),
-  ];
+  void _showMoreSheet(BuildContext context, String location) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _secondaryDestinations.map((d) {
+              final selected = _matchIndex(_secondaryDestinations, location) == _secondaryDestinations.indexOf(d);
+              return ListTile(
+                leading: Icon(selected ? d.selectedIcon : d.icon),
+                title: Text(d.label),
+                selected: selected,
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  context.go(d.path);
+                },
+              );
+            }).toList(),
+          ),
+        );
+      },
+    );
+  }
 }
 
 class _Destination {
   final String label;
+  final String path;
   final IconData icon;
   final IconData selectedIcon;
 
-  const _Destination(this.label, this.icon, this.selectedIcon);
+  const _Destination(this.label, this.path, this.icon, this.selectedIcon);
 }

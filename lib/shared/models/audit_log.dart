@@ -20,7 +20,7 @@ class AuditLog {
         businessId: json['business_id'] as String,
         deviceId: json['device_id'] as String?,
         actionType: json['action_type'] as String,
-        details: json['details'] == null ? null : json['details'].toString(),
+        details: json['details']?.toString(),
         createdAt: json['created_at'] != null ? DateTime.parse(json['created_at'] as String) : null,
       );
 
