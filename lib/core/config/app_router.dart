@@ -9,6 +9,7 @@ import 'package:khao_piyo_pos/features/orders/presentation/orders_screen.dart';
 import 'package:khao_piyo_pos/features/kitchen/presentation/kitchen_screen.dart';
 import 'package:khao_piyo_pos/features/billing/presentation/billing_screen.dart';
 import 'package:khao_piyo_pos/features/auth/presentation/login_screen.dart';
+import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 
 import 'package:khao_piyo_pos/features/settings/presentation/settings_screen.dart';
 
@@ -51,8 +52,19 @@ final appRouter = GoRouter(
       return '/login';
     }
 
-    if (businessId != null && isLoggingIn) {
-      return '/';
+    if (businessId == null) return null; // on /login with no business yet: fine
+
+    final role = prefs.getString('staff_role');
+
+    if (isLoggingIn) {
+      return homeRouteForRole(role);
+    }
+
+    // Defense in depth: a route hidden from a role's nav (see AppScaffold)
+    // shouldn't still be reachable via a deep link, back button, or stale
+    // bookmark.
+    if (!isRouteAllowedForRole(role, state.matchedLocation)) {
+      return homeRouteForRole(role);
     }
 
     return null;

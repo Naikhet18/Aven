@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
 class AppScaffold extends ConsumerWidget {
@@ -10,23 +11,24 @@ class AppScaffold extends ConsumerWidget {
 
   // Shown directly in the bottom nav bar (mobile) and always visible in the
   // rail (tablet/desktop) -- the screens a cashier touches constantly.
+  // `rolesAllowed: null` means every role can see it.
   static const List<_Destination> _primaryDestinations = [
-    _Destination('Dashboard', '/', Icons.dashboard_outlined, Icons.dashboard),
+    _Destination('Dashboard', '/', Icons.dashboard_outlined, Icons.dashboard, rolesAllowed: {'OWNER', 'MANAGER'}),
     _Destination('New Order', '/new-order', Icons.point_of_sale_outlined, Icons.point_of_sale),
     _Destination('Kitchen', '/kitchen', Icons.kitchen_outlined, Icons.kitchen),
-    _Destination('Billing', '/billing', Icons.payments_outlined, Icons.payments),
+    _Destination('Billing', '/billing', Icons.payments_outlined, Icons.payments, rolesAllowed: {'OWNER', 'MANAGER'}),
   ];
 
   // Shown in the rail alongside the primary destinations on wide screens;
   // tucked behind a "More" sheet on mobile so the bottom bar doesn't end up
   // with ten items.
   static const List<_Destination> _secondaryDestinations = [
-    _Destination('Orders', '/orders', Icons.receipt_long_outlined, Icons.receipt_long),
-    _Destination('Menu', '/menu', Icons.restaurant_menu_outlined, Icons.restaurant_menu),
-    _Destination('Inventory', '/inventory', Icons.inventory_2_outlined, Icons.inventory_2),
-    _Destination('Customers', '/customers', Icons.people_outline, Icons.people),
-    _Destination('Finance', '/finance', Icons.account_balance_wallet_outlined, Icons.account_balance_wallet),
-    _Destination('Reports', '/reports', Icons.bar_chart_outlined, Icons.bar_chart),
+    _Destination('Orders', '/orders', Icons.receipt_long_outlined, Icons.receipt_long, rolesAllowed: {'OWNER', 'MANAGER'}),
+    _Destination('Menu', '/menu', Icons.restaurant_menu_outlined, Icons.restaurant_menu, rolesAllowed: {'OWNER', 'MANAGER'}),
+    _Destination('Inventory', '/inventory', Icons.inventory_2_outlined, Icons.inventory_2, rolesAllowed: {'OWNER', 'MANAGER'}),
+    _Destination('Customers', '/customers', Icons.people_outline, Icons.people, rolesAllowed: {'OWNER', 'MANAGER'}),
+    _Destination('Finance', '/finance', Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, rolesAllowed: {'OWNER'}),
+    _Destination('Reports', '/reports', Icons.bar_chart_outlined, Icons.bar_chart, rolesAllowed: {'OWNER', 'MANAGER'}),
     _Destination('Settings', '/settings', Icons.settings_outlined, Icons.settings),
   ];
 
@@ -37,12 +39,15 @@ class AppScaffold extends ConsumerWidget {
       return child;
     }
 
+    final role = ref.watch(currentStaffRoleProvider);
+    final primary = _primaryDestinations.where((d) => d.allowsRole(role)).toList();
+    final secondary = _secondaryDestinations.where((d) => d.allowsRole(role)).toList();
     final location = GoRouterState.of(context).matchedLocation;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         if (constraints.maxWidth >= 600) {
-          final all = [..._primaryDestinations, ..._secondaryDestinations];
+          final all = [...primary, ...secondary];
           final selectedIndex = _matchIndex(all, location);
           return Scaffold(
             body: Row(
@@ -66,21 +71,21 @@ class AppScaffold extends ConsumerWidget {
           );
         }
 
-        final primaryIndex = _matchIndex(_primaryDestinations, location);
+        final primaryIndex = _matchIndex(primary, location);
         final isOnSecondary = primaryIndex < 0;
         return Scaffold(
           body: _AnimatedTab(location: location, child: child),
           bottomNavigationBar: NavigationBar(
-            selectedIndex: isOnSecondary ? _primaryDestinations.length : primaryIndex,
+            selectedIndex: isOnSecondary ? primary.length : primaryIndex,
             onDestinationSelected: (index) {
-              if (index == _primaryDestinations.length) {
-                _showMoreSheet(context, location);
+              if (index == primary.length) {
+                _showMoreSheet(context, location, secondary);
               } else {
-                context.go(_primaryDestinations[index].path);
+                context.go(primary[index].path);
               }
             },
             destinations: [
-              ..._primaryDestinations.map((d) => NavigationDestination(
+              ...primary.map((d) => NavigationDestination(
                     icon: Icon(d.icon),
                     selectedIcon: Icon(d.selectedIcon),
                     label: d.label,
@@ -101,7 +106,7 @@ class AppScaffold extends ConsumerWidget {
     return -1;
   }
 
-  void _showMoreSheet(BuildContext context, String location) {
+  void _showMoreSheet(BuildContext context, String location, List<_Destination> secondary) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
@@ -109,8 +114,8 @@ class AppScaffold extends ConsumerWidget {
         return SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: _secondaryDestinations.map((d) {
-              final selected = _matchIndex(_secondaryDestinations, location) == _secondaryDestinations.indexOf(d);
+            children: secondary.map((d) {
+              final selected = _matchIndex(secondary, location) == secondary.indexOf(d);
               return ListTile(
                 leading: Icon(selected ? d.selectedIcon : d.icon),
                 title: Text(d.label),
@@ -160,5 +165,11 @@ class _Destination {
   final IconData icon;
   final IconData selectedIcon;
 
-  const _Destination(this.label, this.path, this.icon, this.selectedIcon);
+  /// Roles allowed to see this destination. Null means every role
+  /// (OWNER/MANAGER/STAFF, or no role at all e.g. mid-migration) can.
+  final Set<String>? rolesAllowed;
+
+  const _Destination(this.label, this.path, this.icon, this.selectedIcon, {this.rolesAllowed});
+
+  bool allowsRole(String? role) => rolesAllowed == null || rolesAllowed!.contains(role);
 }

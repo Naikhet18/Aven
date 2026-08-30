@@ -5,7 +5,12 @@
       "Bash(flutter analyze *)",
       "Bash(flutter test *)",
       "Bash(git add *)",
-      "Bash(git commit -q -m ' *)"
+      "Bash(git commit -q -m ' *)",
+      "Bash(flutter pub *)",
+      "Bash(xargs -I{} find {} -name \"*.dart\" -path \"*lib*\")",
+      "Bash(grep -n \"class QrImageView\\\\|const QrImageView\\(\" -A 15 /System/Volumes/Data/Users/naik/.pub-cache/hosted/pub.dev/qr_flutter-4.1.0/lib/src/qr_image_view.dart | head -30)",
+      "Read(//Users/naik/.pub-cache/hosted/pub.dev/qr_flutter-4.1.0/lib/src/**)",
+      "Bash(flutter build *)"
     ]
   }
 }

@@ -21,6 +21,14 @@ Every tenant table's RLS policy calls `is_business_member(business_id)` (a `secu
 function) instead of allowing any authenticated user through. A new `businesses` row automatically
 adds its creator as `OWNER` via the `on_business_created` trigger.
 
+### Password-less staff join
+`join_business_with_code(p_code, p_role, p_device_id, p_device_name, p_platform)` is a
+`security definer` RPC: a staff device first calls Supabase's anonymous sign-in (no
+email/password, but a real `auth.uid()`), then calls this function with the restaurant's
+`join_code`. It validates `p_role in ('MANAGER','STAFF')` (a leaked code can never grant
+`OWNER`), upserts `business_members` and `devices`, and returns the `business_id`. See
+`ARCHITECTURE.md` for why this needs no RLS changes on any other table.
+
 ## Core Tables
 
 ### `businesses`
@@ -28,7 +36,15 @@ adds its creator as `OWNER` via the `on_business_created` trigger.
 - `name` (TEXT)
 - `address` (TEXT)
 - `phone` (TEXT)
+- `join_code` (TEXT, unique) - short code staff use to join without a password; owner can
+  regenerate it from Settings > Staff
 - `created_at` (TIMESTAMP)
+
+### `tables`
+Dine-in tables. Mirrors `categories` exactly (own CRUD screen: Settings > Manage Tables).
+`orders.table_number` is a free-text match against `name`, not a foreign key.
+- `id`, `business_id`, `name` (e.g. "1", "VIP", "Outdoor 1"), `sort_order`,
+  `created_at` / `updated_at` / `deleted_at`
 
 ### `devices`
 - `id` (UUID, PK) -- matches the app's persisted per-install device id

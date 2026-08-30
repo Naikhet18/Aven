@@ -4,9 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/printing/printer_config.dart';
+import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/printer_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/features/settings/widgets/activity_log_tab.dart';
+import 'package:khao_piyo_pos/features/settings/widgets/staff_devices_tab.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -93,7 +95,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.remove('business_id');
+    await prefs.remove('staff_role');
     ref.read(currentBusinessIdProvider.notifier).state = null;
+    ref.read(currentStaffRoleProvider.notifier).state = null;
     await Supabase.instance.client.auth.signOut();
 
     if (mounted) context.go('/login');
@@ -101,8 +105,40 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final role = ref.watch(currentStaffRoleProvider);
+    final isOwner = role.isOwner;
+
+    if (role.isStaff) {
+      // Waiters only ever land here to log out -- the rest of Settings
+      // (business config, printer, staff codes) isn't theirs to see.
+      return Scaffold(
+        appBar: AppBar(title: const Text('Settings')),
+        body: Center(
+          child: FilledButton.icon(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
+            label: const Text('Log out'),
+            style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+          ),
+        ),
+      );
+    }
+
+    final tabs = [
+      const Tab(text: 'Business', icon: Icon(Icons.store)),
+      const Tab(text: 'Printer', icon: Icon(Icons.print)),
+      const Tab(text: 'Activity', icon: Icon(Icons.history)),
+      if (isOwner) const Tab(text: 'Staff', icon: Icon(Icons.people_outline)),
+    ];
+    final tabViews = [
+      _buildBusinessTab(),
+      _buildPrinterTab(),
+      const ActivityLogTab(),
+      if (isOwner) const StaffDevicesTab(),
+    ];
+
     return DefaultTabController(
-      length: 3,
+      length: tabs.length,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Settings'),
@@ -113,21 +149,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               onPressed: _logout,
             ),
           ],
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Business', icon: Icon(Icons.store)),
-              Tab(text: 'Printer', icon: Icon(Icons.print)),
-              Tab(text: 'Activity', icon: Icon(Icons.history)),
-            ],
-          ),
+          bottom: TabBar(tabs: tabs),
         ),
-        body: TabBarView(
-          children: [
-            _buildBusinessTab(),
-            _buildPrinterTab(),
-            const ActivityLogTab(),
-          ],
-        ),
+        body: TabBarView(children: tabViews),
       ),
     );
   }

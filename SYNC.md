@@ -34,7 +34,12 @@ pull tick.
 
 ### Registered tables
 `categories`, `menu_items`, `orders` (+ `order_items` via the hook above), `customers`, `ingredients`,
-`inventory_transactions`, `suppliers`, `expenses`, `payments`, `audit_logs`.
+`inventory_transactions`, `suppliers`, `expenses`, `payments`, `audit_logs`, `tables`.
+
+`businesses` (specifically `join_code`) is deliberately **not** registered here -- it's fetched
+directly from Supabase on demand by the Owner-only Staff & Devices settings screen instead. It's an
+infrequent admin action, not a core POS flow, so it doesn't need offline caching the way orders/menu
+do.
 
 `recipes` is push-only (no pull/realtime registration): it's low-churn, business-owner-edited data
 without its own `business_id` column, and adding a join-based pull for it wasn't worth the added

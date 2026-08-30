@@ -9,6 +9,11 @@ This creates the schema and, critically, the `business_members`-scoped RLS polic
 this on a fresh project, or every table is only protected by `using (true)` from the earlier
 migrations (any authenticated user could read/write any business's data).
 
+**Also required, and can't be scripted from a migration**: enable
+*Authentication → Sign In / Providers → Anonymous Sign-Ins* in the Supabase dashboard. Staff devices
+join a restaurant password-less via anonymous auth (see ARCHITECTURE.md); the "Join with a Code"
+screen fails with an auth error until this is switched on.
+
 ## Environment Setup
 Create a `.env` file in the root of the project (already gitignored):
 ```

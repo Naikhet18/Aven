@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/theme/app_theme.dart';
+import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
 /// The app's boot screen. Does real work (checks the session, warms the
@@ -55,8 +56,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
       businessId = null;
     }
 
+    String? role;
     if (businessId != null) {
+      role = prefs.getString('staff_role');
       ref.read(currentBusinessIdProvider.notifier).state = businessId;
+      ref.read(currentStaffRoleProvider.notifier).state = role;
       ref.read(syncServiceProvider).start(businessId);
     }
 
@@ -67,7 +71,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     }
 
     if (!mounted) return;
-    context.go(businessId != null ? '/' : '/login');
+    context.go(businessId != null ? homeRouteForRole(role) : '/login');
   }
 
   @override

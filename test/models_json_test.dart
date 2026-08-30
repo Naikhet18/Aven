@@ -3,6 +3,7 @@ import 'package:khao_piyo_pos/shared/models/customer.dart';
 import 'package:khao_piyo_pos/shared/models/ingredient.dart';
 import 'package:khao_piyo_pos/shared/models/order.dart';
 import 'package:khao_piyo_pos/shared/models/payment.dart';
+import 'package:khao_piyo_pos/shared/models/restaurant_table.dart';
 
 void main() {
   group('JSON round-trips (these are what the sync engine pushes/pulls)', () {
@@ -106,6 +107,22 @@ void main() {
       expect(customer.totalSpent, 0);
       expect(customer.totalOrders, 0);
       expect(customer.loyaltyPoints, 0);
+    });
+
+    test('RestaurantTable survives toJson -> fromJson', () {
+      final table = RestaurantTable(
+        id: 'table-1',
+        businessId: 'biz-1',
+        name: 'VIP',
+        sortOrder: 3,
+        createdAt: DateTime.utc(2026, 8, 30, 9, 0),
+        updatedAt: DateTime.utc(2026, 8, 30, 9, 0),
+      );
+
+      final restored = RestaurantTable.fromJson(table.toJson());
+      expect(restored.name, 'VIP');
+      expect(restored.sortOrder, 3);
+      expect(restored.deletedAt, isNull);
     });
   });
 }
