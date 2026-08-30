@@ -106,7 +106,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final role = ref.watch(currentStaffRoleProvider);
-    final isOwner = role.isOwner;
+    // A null role means business_id was stored before roles existed --
+    // treat it as owner-equivalent (see staff_role_provider.dart) rather
+    // than hiding the Staff tab from a real, already-working owner.
+    final isOwner = role.isOwner || role == null;
 
     if (role.isStaff) {
       // Waiters only ever land here to log out -- the rest of Settings

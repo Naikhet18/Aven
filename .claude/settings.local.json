@@ -10,7 +10,11 @@
       "Bash(xargs -I{} find {} -name \"*.dart\" -path \"*lib*\")",
       "Bash(grep -n \"class QrImageView\\\\|const QrImageView\\(\" -A 15 /System/Volumes/Data/Users/naik/.pub-cache/hosted/pub.dev/qr_flutter-4.1.0/lib/src/qr_image_view.dart | head -30)",
       "Read(//Users/naik/.pub-cache/hosted/pub.dev/qr_flutter-4.1.0/lib/src/**)",
-      "Bash(flutter build *)"
+      "Bash(flutter build *)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_40c8754c607ed5c9a845416cf1b4ae1436f9e845 supabase db push)",
+      "Bash(SUPABASE_ACCESS_TOKEN=sbp_40c8754c607ed5c9a845416cf1b4ae1436f9e845 supabase migration list)",
+      "Bash(adb devices *)",
+      "Bash(adb -s 9649951347000M2 install -r build/app/outputs/flutter-apk/app-debug.apk)"
     ]
   }
 }

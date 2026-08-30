@@ -165,11 +165,14 @@ class _Destination {
   final IconData icon;
   final IconData selectedIcon;
 
-  /// Roles allowed to see this destination. Null means every role
-  /// (OWNER/MANAGER/STAFF, or no role at all e.g. mid-migration) can.
+  /// Roles allowed to see this destination. Null means every role can.
   final Set<String>? rolesAllowed;
 
   const _Destination(this.label, this.path, this.icon, this.selectedIcon, {this.rolesAllowed});
 
-  bool allowsRole(String? role) => rolesAllowed == null || rolesAllowed!.contains(role);
+  // A null role means a business_id was stored before roles existed --
+  // treat it as full access (see the matching note on isRouteAllowedForRole
+  // in staff_role_provider.dart) rather than hiding destinations from a
+  // real, already-working owner.
+  bool allowsRole(String? role) => role == null || rolesAllowed == null || rolesAllowed!.contains(role);
 }

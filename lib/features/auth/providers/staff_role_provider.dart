@@ -21,11 +21,18 @@ String homeRouteForRole(String? role) => role.isStaff ? '/new-order' : '/';
 
 /// Mirrors AppScaffold's per-destination role gating so a route hidden from
 /// the nav can't still be reached via a deep link or the back button.
-/// `null`/unrecognized roles are treated as fully restricted (STAFF-level)
-/// rather than fully open, so a role that failed to load defaults to the
-/// safer, more restrictive option.
+///
+/// `null` is treated as full access, not "most restricted": it means a
+/// business_id was stored locally *before* roles existed (an install that
+/// predates this feature), and the account that set it up was, by
+/// definition, a full-access owner at the time. Treating it as STAFF-level
+/// would both lock out a real existing owner and create an infinite
+/// redirect loop (homeRouteForRole(null) points at '/', which this function
+/// would then immediately deny for a null role, bouncing right back).
+/// Every *new* login/join path always sets an explicit role, so `null`
+/// should only ever occur on such a pre-existing install.
 bool isRouteAllowedForRole(String? role, String location) {
-  if (role.isOwner) return true;
+  if (role == null || role.isOwner) return true;
 
   const managerOnlyDenied = {'/finance'};
   const staffAllowed = {'/new-order', '/kitchen', '/settings'};
@@ -34,6 +41,6 @@ bool isRouteAllowedForRole(String? role, String location) {
     return !managerOnlyDenied.any((p) => location.startsWith(p));
   }
 
-  // STAFF (or an unrecognized/missing role): only the explicitly allowed set.
+  // STAFF: only the explicitly allowed set.
   return staffAllowed.any((p) => location.startsWith(p));
 }
