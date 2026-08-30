@@ -39,15 +39,10 @@ class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
   @override
   void initState() {
     super.initState();
-    // Wires every repository's pull-merge handler into the sync engine --
-    // must happen before the engine is ever started.
-    ref.read(syncRegistryProvider);
-
-    final businessId = ref.read(currentBusinessIdProvider);
-    if (businessId != null) {
-      ref.read(syncServiceProvider).start(businessId);
-    }
-
+    // The initial boot sequence (registering sync handlers, starting the
+    // engine if a session already exists) lives in SplashScreen, the app's
+    // first screen. This listener only handles *later* changes for the rest
+    // of the app's lifetime -- logging in, joining a business, logging out.
     ref.listenManual<String?>(currentBusinessIdProvider, (previous, next) {
       final syncService = ref.read(syncServiceProvider);
       if (next != null) {

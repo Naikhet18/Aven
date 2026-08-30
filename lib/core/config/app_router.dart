@@ -17,6 +17,8 @@ import 'package:khao_piyo_pos/features/inventory/presentation/inventory_screen.d
 import 'package:khao_piyo_pos/features/customers/presentation/customers_screen.dart';
 import 'package:khao_piyo_pos/features/finance/presentation/finance_screen.dart';
 import 'package:khao_piyo_pos/features/orders/presentation/order_details_screen.dart';
+import 'package:khao_piyo_pos/features/splash/presentation/splash_screen.dart';
+import 'package:khao_piyo_pos/features/tables/presentation/manage_tables_screen.dart';
 
 import 'package:khao_piyo_pos/shared/widgets/app_scaffold.dart';
 
@@ -25,8 +27,12 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/',
+  initialLocation: '/splash',
   redirect: (context, state) async {
+    // The splash screen owns the initial routing decision (it does real
+    // async init first); don't fight with it while it's still booting.
+    if (state.matchedLocation == '/splash') return null;
+
     final prefs = await SharedPreferences.getInstance();
     var businessId = prefs.getString('business_id');
 
@@ -52,6 +58,11 @@ final appRouter = GoRouter(
     return null;
   },
   routes: [
+    GoRoute(
+      path: '/splash',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/login',
       parentNavigatorKey: _rootNavigatorKey,
@@ -113,6 +124,13 @@ final appRouter = GoRouter(
         GoRoute(
           path: '/settings',
           builder: (context, state) => const SettingsScreen(),
+          routes: [
+            GoRoute(
+              path: 'tables',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) => const ManageTablesScreen(),
+            ),
+          ],
         ),
       ],
     ),

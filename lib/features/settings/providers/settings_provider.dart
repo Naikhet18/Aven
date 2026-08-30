@@ -10,7 +10,6 @@ class BusinessSettings {
   final double taxRatePercent;
   final String currencySymbol;
   final int loyaltyPointsPerCurrencyUnit; // e.g. 1 point earned per 100 spent
-  final int tableCount;
 
   BusinessSettings({
     required this.name,
@@ -21,7 +20,6 @@ class BusinessSettings {
     this.taxRatePercent = 0,
     this.currencySymbol = '₹',
     this.loyaltyPointsPerCurrencyUnit = 100,
-    this.tableCount = 12,
   });
 
   BusinessSettings copyWith({
@@ -33,7 +31,6 @@ class BusinessSettings {
     double? taxRatePercent,
     String? currencySymbol,
     int? loyaltyPointsPerCurrencyUnit,
-    int? tableCount,
   }) {
     return BusinessSettings(
       name: name ?? this.name,
@@ -44,7 +41,6 @@ class BusinessSettings {
       taxRatePercent: taxRatePercent ?? this.taxRatePercent,
       currencySymbol: currencySymbol ?? this.currencySymbol,
       loyaltyPointsPerCurrencyUnit: loyaltyPointsPerCurrencyUnit ?? this.loyaltyPointsPerCurrencyUnit,
-      tableCount: tableCount ?? this.tableCount,
     );
   }
 }
@@ -62,7 +58,6 @@ class SettingsNotifier extends Notifier<BusinessSettings> {
       taxRatePercent: prefs.getDouble('setting_tax_rate') ?? 0,
       currencySymbol: prefs.getString('setting_currency_symbol') ?? '₹',
       loyaltyPointsPerCurrencyUnit: prefs.getInt('setting_loyalty_rate') ?? 100,
-      tableCount: prefs.getInt('setting_table_count') ?? 12,
     );
   }
 
@@ -76,7 +71,6 @@ class SettingsNotifier extends Notifier<BusinessSettings> {
     await prefs.setDouble('setting_tax_rate', newSettings.taxRatePercent);
     await prefs.setString('setting_currency_symbol', newSettings.currencySymbol);
     await prefs.setInt('setting_loyalty_rate', newSettings.loyaltyPointsPerCurrencyUnit);
-    await prefs.setInt('setting_table_count', newSettings.tableCount);
 
     state = newSettings;
   }

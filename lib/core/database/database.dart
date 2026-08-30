@@ -181,6 +181,20 @@ class AuditLogs extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+@DataClassName('RestaurantTableEntity')
+class Tables extends Table {
+  TextColumn get id => text()();
+  TextColumn get businessId => text()();
+  TextColumn get name => text()();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  DateTimeColumn get createdAt => dateTime().nullable()();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DataClassName('PaymentEntity')
 class Payments extends Table {
   TextColumn get id => text()();
@@ -220,13 +234,14 @@ class SyncOperations extends Table {
   Suppliers,
   AuditLogs,
   Payments,
+  Tables,
   SyncOperations
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -253,6 +268,9 @@ class AppDatabase extends _$AppDatabase {
         }
         if (from < 3) {
           await m.createTable(payments);
+        }
+        if (from < 4) {
+          await m.createTable(tables);
         }
       },
     );

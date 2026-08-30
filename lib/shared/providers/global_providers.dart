@@ -17,6 +17,8 @@ import 'package:khao_piyo_pos/features/menu/repository/local_menu_repository.dar
 import 'package:khao_piyo_pos/features/menu/repository/menu_repository.dart';
 import 'package:khao_piyo_pos/features/orders/repository/local_order_repository.dart';
 import 'package:khao_piyo_pos/features/orders/repository/order_repository.dart';
+import 'package:khao_piyo_pos/features/tables/repository/local_table_repository.dart';
+import 'package:khao_piyo_pos/features/tables/repository/table_repository.dart';
 import 'package:khao_piyo_pos/shared/models/audit_log.dart';
 import 'package:khao_piyo_pos/shared/models/category.dart';
 import 'package:khao_piyo_pos/shared/models/customer.dart';
@@ -27,6 +29,7 @@ import 'package:khao_piyo_pos/shared/models/menu_item.dart';
 import 'package:khao_piyo_pos/shared/models/order.dart';
 import 'package:khao_piyo_pos/shared/models/order_item.dart';
 import 'package:khao_piyo_pos/shared/models/payment.dart';
+import 'package:khao_piyo_pos/shared/models/restaurant_table.dart';
 import 'package:khao_piyo_pos/shared/models/supplier.dart';
 
 // Needs to be overridden in main() after SharedPreferences.getInstance()
@@ -112,6 +115,12 @@ final auditLogServiceProvider = Provider<AuditLogService>((ref) {
   return AuditLogService(db, syncService);
 });
 
+final tableRepositoryProvider = Provider<TableRepository>((ref) {
+  final db = ref.watch(databaseProvider);
+  final syncService = ref.watch(syncServiceProvider);
+  return LocalTableRepository(db, syncService);
+});
+
 /// Reading this provider once (see `main.dart`) wires every repository's
 /// pull-merge handler into the sync engine's registry. This is the piece
 /// that breaks the sync-service/repository constructor cycle: everything
@@ -125,6 +134,7 @@ final syncRegistryProvider = Provider<void>((ref) {
   final financeRepo = ref.watch(financeRepositoryProvider) as LocalFinanceRepository;
   final paymentRepo = ref.watch(paymentRepositoryProvider) as LocalPaymentRepository;
   final auditLogService = ref.watch(auditLogServiceProvider);
+  final tableRepo = ref.watch(tableRepositoryProvider) as LocalTableRepository;
 
   syncService.registerSyncable(SyncableTable(
     table: 'categories',
@@ -169,6 +179,10 @@ final syncRegistryProvider = Provider<void>((ref) {
     table: 'audit_logs',
     timestampColumn: 'created_at',
     upsertFromRemote: (row) => auditLogService.upsertFromRemote(AuditLog.fromJson(row)),
+  ));
+  syncService.registerSyncable(SyncableTable(
+    table: 'tables',
+    upsertFromRemote: (row) => tableRepo.upsertTableFromRemote(RestaurantTable.fromJson(row)),
   ));
 
   syncService.onOrderUpserted = (orderId) async {
