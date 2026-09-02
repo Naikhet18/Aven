@@ -54,10 +54,12 @@ class OrdersScreen extends ConsumerWidget {
                   ),
                   isThreeLine: true,
                   trailing: Chip(
-                    label: Text(order.paymentStatus),
-                    backgroundColor: order.paymentStatus == 'PAID'
-                        ? Colors.green.shade100
-                        : Colors.orange.shade100,
+                    label: Text(
+                      order.paymentStatus,
+                      style: TextStyle(color: order.paymentStatus == 'PAID' ? Colors.green.shade800 : Colors.orange.shade800),
+                    ),
+                    backgroundColor: (order.paymentStatus == 'PAID' ? Colors.green : Colors.orange).withValues(alpha: 0.15),
+                    side: BorderSide.none,
                   ),
                   onTap: () => context.go('/orders/${order.id}'),
                 ),

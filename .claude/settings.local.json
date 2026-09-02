@@ -14,7 +14,10 @@
       "Bash(SUPABASE_ACCESS_TOKEN=sbp_40c8754c607ed5c9a845416cf1b4ae1436f9e845 supabase db push)",
       "Bash(SUPABASE_ACCESS_TOKEN=sbp_40c8754c607ed5c9a845416cf1b4ae1436f9e845 supabase migration list)",
       "Bash(adb devices *)",
-      "Bash(adb -s 9649951347000M2 install -r build/app/outputs/flutter-apk/app-debug.apk)"
+      "Bash(adb -s 9649951347000M2 install -r build/app/outputs/flutter-apk/app-debug.apk)",
+      "Bash(adb -s 9649951347000M2 shell am force-stop com.khao_piyo.khao_piyo_pos)",
+      "Bash(adb -s 9649951347000M2 shell am start -n com.khao_piyo.khao_piyo_pos/.MainActivity)",
+      "Bash(adb -s 9649951347000M2 exec-out screencap -p)"
     ]
   }
 }

@@ -264,8 +264,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               connectionStatusAsync.when(
                 data: (connected) => Chip(
-                  label: Text(connected ? 'Connected' : 'Not connected'),
-                  backgroundColor: connected ? Colors.green.shade100 : Colors.grey.shade200,
+                  label: Text(connected ? 'Connected' : 'Not connected', style: TextStyle(color: connected ? Colors.green.shade800 : null)),
+                  backgroundColor: connected ? Colors.green.withValues(alpha: 0.15) : null,
+                  avatar: Icon(connected ? Icons.check_circle : Icons.circle_outlined, size: 16, color: connected ? Colors.green.shade800 : null),
                 ),
                 loading: () => const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                 error: (_, _) => const SizedBox.shrink(),

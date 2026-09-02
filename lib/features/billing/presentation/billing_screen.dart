@@ -13,21 +13,23 @@ class BillingScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final unpaidOrdersAsync = ref.watch(unpaidOrdersStreamProvider);
     final currencySymbol = ref.watch(settingsProvider).currencySymbol;
+    final scheme = Theme.of(context).colorScheme;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Billing & Checkout'),
-      ),
-      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(title: const Text('Billing')),
       body: unpaidOrdersAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (orders) {
           if (orders.isEmpty) {
-            return const Center(
-              child: Text(
-                'No unpaid orders.',
-                style: TextStyle(fontSize: 20, color: Colors.grey),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.payments_outlined, size: 64, color: scheme.outline),
+                  const SizedBox(height: 16),
+                  Text('No unpaid orders', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.outline)),
+                ],
               ),
             );
           }
@@ -37,23 +39,34 @@ class BillingScreen extends ConsumerWidget {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
-              final timeString = order.createdAt != null 
-                  ? DateFormat('hh:mm a').format(order.createdAt!) 
-                  : '';
+              final timeString = order.createdAt != null ? DateFormat('hh:mm a').format(order.createdAt!) : '';
+              final isPartiallyPaid = order.paymentStatus == 'PARTIALLY_PAID';
 
               return Card(
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListTile(
                   contentPadding: const EdgeInsets.all(16),
-                  title: Text(
-                    'Order #${order.orderNumber}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  title: Row(
+                    children: [
+                      Text('Order #${order.orderNumber}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      if (isPartiallyPaid) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.orange.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text('Partial', style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.orange.shade800)),
+                        ),
+                      ],
+                    ],
                   ),
                   subtitle: Padding(
                     padding: const EdgeInsets.only(top: 8.0),
                     child: Text(
-                      '${order.orderType} • $timeString\nStatus: ${order.status} • ${order.paymentStatus}',
-                      style: const TextStyle(fontSize: 14),
+                      '${order.orderType} • $timeString\n${order.status}',
+                      style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
                     ),
                   ),
                   isThreeLine: true,
@@ -63,11 +76,7 @@ class BillingScreen extends ConsumerWidget {
                     children: [
                       Text(
                         Currency.format(order.total, symbol: currencySymbol),
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: scheme.primary),
                       ),
                       const SizedBox(height: 8),
                       FilledButton(
@@ -77,7 +86,7 @@ class BillingScreen extends ConsumerWidget {
                             builder: (context) => CheckoutDialog(order: order),
                           );
                         },
-                        child: const Text('PAY NOW'),
+                        child: const Text('Pay Now'),
                       ),
                     ],
                   ),
