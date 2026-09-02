@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/billing/providers/billing_provider.dart';
 import 'package:khao_piyo_pos/features/inventory/providers/inventory_provider.dart';
@@ -90,7 +91,7 @@ class DashboardScreen extends ConsumerWidget {
                           ),
                           trend: 'Being prepared right now',
                           icon: Icons.receipt_long,
-                          color: Colors.orange,
+                          color: AppTheme.warning,
                           onTap: () => context.go('/kitchen'),
                         ),
                         _MetricCard(
@@ -106,7 +107,7 @@ class DashboardScreen extends ConsumerWidget {
                             error: (_, _) => 'Could not load',
                           ),
                           icon: Icons.inventory_2,
-                          color: Colors.redAccent,
+                          color: AppTheme.error,
                           onTap: () => context.go('/inventory'),
                         ),
                         _MetricCard(

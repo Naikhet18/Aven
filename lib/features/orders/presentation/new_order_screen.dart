@@ -449,6 +449,7 @@ class _CartSection extends ConsumerWidget {
                                 children: [
                                   IconButton(
                                     icon: const Icon(Icons.remove, size: 18),
+                                    tooltip: 'Decrease quantity',
                                     onPressed: () {
                                       HapticFeedback.selectionClick();
                                       cartNotifier.updateQuantity(cartItem.menuItem, cartItem.quantity - 1);
@@ -460,6 +461,7 @@ class _CartSection extends ConsumerWidget {
                                   ),
                                   IconButton(
                                     icon: const Icon(Icons.add, size: 18),
+                                    tooltip: 'Increase quantity',
                                     onPressed: () {
                                       HapticFeedback.selectionClick();
                                       cartNotifier.updateQuantity(cartItem.menuItem, cartItem.quantity + 1);

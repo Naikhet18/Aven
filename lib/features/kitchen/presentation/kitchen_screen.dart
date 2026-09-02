@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/features/kitchen/providers/kitchen_provider.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
@@ -65,7 +66,7 @@ class _OrderTicket extends ConsumerWidget {
     final items = orderData.items;
 
     final isNew = order.status == 'NEW';
-    final headerColor = isNew ? scheme.primary : Colors.orange.shade700;
+    final headerColor = isNew ? scheme.primary : AppTheme.warningStrong;
 
     final timeElapsed = order.createdAt != null ? DateTime.now().difference(order.createdAt!).inMinutes : 0;
     final isLate = timeElapsed > 15;
@@ -166,7 +167,7 @@ class _OrderTicket extends ConsumerWidget {
               height: 52,
               child: FilledButton(
                 style: FilledButton.styleFrom(
-                  backgroundColor: isNew ? scheme.primary : Colors.green.shade700,
+                  backgroundColor: isNew ? scheme.primary : AppTheme.successStrong,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                 ),
                 onPressed: () async {

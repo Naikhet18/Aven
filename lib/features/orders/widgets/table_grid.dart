@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/features/billing/providers/billing_provider.dart';
 import 'package:khao_piyo_pos/features/kitchen/providers/kitchen_provider.dart';
 import 'package:khao_piyo_pos/features/tables/providers/tables_provider.dart';
@@ -156,7 +157,7 @@ class _TableTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final color = isOccupied ? Colors.orange : scheme.primary;
+    final color = isOccupied ? AppTheme.warning : scheme.primary;
 
     return Material(
       color: Colors.transparent,

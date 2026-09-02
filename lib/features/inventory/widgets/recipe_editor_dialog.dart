@@ -100,6 +100,7 @@ class _RecipeEditorDialogState extends ConsumerState<RecipeEditorDialog> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.remove_circle_outline),
+                                tooltip: 'Remove ingredient',
                                 onPressed: () => setState(() => _lines.removeAt(index)),
                               ),
                             ],

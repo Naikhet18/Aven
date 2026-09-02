@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/order.dart';
@@ -28,6 +29,7 @@ class OrdersScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
             onPressed: () => ref.invalidate(ordersListProvider),
           ),
         ],
@@ -56,9 +58,9 @@ class OrdersScreen extends ConsumerWidget {
                   trailing: Chip(
                     label: Text(
                       order.paymentStatus,
-                      style: TextStyle(color: order.paymentStatus == 'PAID' ? Colors.green.shade800 : Colors.orange.shade800),
+                      style: TextStyle(color: order.paymentStatus == 'PAID' ? AppTheme.success : AppTheme.warning),
                     ),
-                    backgroundColor: (order.paymentStatus == 'PAID' ? Colors.green : Colors.orange).withValues(alpha: 0.15),
+                    backgroundColor: (order.paymentStatus == 'PAID' ? AppTheme.success : AppTheme.warning).withValues(alpha: 0.15),
                     side: BorderSide.none,
                   ),
                   onTap: () => context.go('/orders/${order.id}'),

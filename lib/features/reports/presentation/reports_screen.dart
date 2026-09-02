@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/reports/providers/reports_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
@@ -61,7 +62,7 @@ class ReportsScreen extends ConsumerWidget {
                   title: 'Revenue',
                   value: Currency.format(report.totalRevenue, symbol: currencySymbol),
                   icon: Icons.currency_exchange,
-                  color: Colors.green,
+                  color: AppTheme.success,
                 ),
               ),
               const SizedBox(width: 16),
@@ -70,7 +71,7 @@ class ReportsScreen extends ConsumerWidget {
                   title: 'Orders',
                   value: '${report.totalOrders}',
                   icon: Icons.receipt_long,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],
@@ -83,7 +84,7 @@ class ReportsScreen extends ConsumerWidget {
                   title: 'Expenses',
                   value: Currency.format(report.totalExpenses, symbol: currencySymbol),
                   icon: Icons.money_off,
-                  color: Colors.red,
+                  color: AppTheme.error,
                 ),
               ),
               const SizedBox(width: 16),
@@ -92,7 +93,7 @@ class ReportsScreen extends ConsumerWidget {
                   title: 'Net Profit',
                   value: Currency.format(report.netProfit, symbol: currencySymbol),
                   icon: Icons.savings_outlined,
-                  color: report.netProfit >= 0 ? Colors.teal : Colors.red,
+                  color: report.netProfit >= 0 ? AppTheme.success : AppTheme.error,
                 ),
               ),
             ],

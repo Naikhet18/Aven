@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/printing/printer_config.dart';
@@ -264,9 +265,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               connectionStatusAsync.when(
                 data: (connected) => Chip(
-                  label: Text(connected ? 'Connected' : 'Not connected', style: TextStyle(color: connected ? Colors.green.shade800 : null)),
-                  backgroundColor: connected ? Colors.green.withValues(alpha: 0.15) : null,
-                  avatar: Icon(connected ? Icons.check_circle : Icons.circle_outlined, size: 16, color: connected ? Colors.green.shade800 : null),
+                  label: Text(connected ? 'Connected' : 'Not connected', style: TextStyle(color: connected ? AppTheme.success : null)),
+                  backgroundColor: connected ? AppTheme.success.withValues(alpha: 0.15) : null,
+                  avatar: Icon(connected ? Icons.check_circle : Icons.circle_outlined, size: 16, color: connected ? AppTheme.success : null),
                 ),
                 loading: () => const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
                 error: (_, _) => const SizedBox.shrink(),
@@ -298,7 +299,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       leading: Icon(selected ? Icons.print : Icons.print_outlined),
                       title: Text(d.name),
                       subtitle: Text(d.macAdress),
-                      trailing: selected ? const Icon(Icons.check_circle, color: Colors.green) : null,
+                      trailing: selected ? const Icon(Icons.check_circle, color: AppTheme.success) : null,
                       onTap: () {
                         ref.read(printerConfigProvider.notifier).update(
                               config.copyWith(receiptBluetoothMac: d.macAdress, receiptBluetoothName: d.name),

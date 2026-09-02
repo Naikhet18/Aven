@@ -79,6 +79,7 @@ class _CheckoutSheetState extends ConsumerState<CheckoutSheet> {
                 IconButton(
                   onPressed: () => Navigator.pop(context),
                   icon: const Icon(Icons.close),
+                  tooltip: 'Close',
                   style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest),
                 )
               ],

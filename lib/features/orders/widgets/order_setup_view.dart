@@ -153,7 +153,7 @@ class _TablePickerStep extends StatelessWidget {
         children: [
           Row(
             children: [
-              IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back)),
+              IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back), tooltip: 'Back'),
               const SizedBox(width: 4),
               Text('Select a table', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold)),
             ],

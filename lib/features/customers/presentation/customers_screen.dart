@@ -18,7 +18,7 @@ class CustomersScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Customers'),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: () => ref.invalidate(customersProvider)),
+          IconButton(icon: const Icon(Icons.refresh), tooltip: 'Refresh', onPressed: () => ref.invalidate(customersProvider)),
         ],
       ),
       body: customersAsync.when(

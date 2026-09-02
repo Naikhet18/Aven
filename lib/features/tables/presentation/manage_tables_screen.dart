@@ -66,10 +66,12 @@ class ManageTablesScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit_outlined),
+                        tooltip: 'Rename table',
                         onPressed: () => showDialog(context: context, builder: (_) => AddTableDialog(tableToEdit: table)),
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete_outline),
+                        tooltip: 'Remove table',
                         onPressed: () => _confirmDelete(context, ref, table),
                       ),
                     ],

@@ -10,10 +10,16 @@ class AppTheme {
   static const Color lightBackground = Color(0xFFF8FAFC); // Slate 50
   static const Color darkBackground = Color(0xFF0F172A); // Slate 900
   
-  // Custom semantic colors
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
+  // Semantic colors: the base tone for icons/text on a light tinted
+  // background (e.g. a status chip), and a darker "strong" tone for solid
+  // fills that need to host white text at WCAG AA contrast (4.5:1) -- the
+  // base amber, for instance, is too light for white text to read on.
+  static const Color success = Color(0xFF10B981); // emerald-500
+  static const Color successStrong = Color(0xFF047857); // emerald-700
+  static const Color warning = Color(0xFFF59E0B); // amber-500
+  static const Color warningStrong = Color(0xFFB45309); // amber-700
+  static const Color error = Color(0xFFEF4444); // red-500
+  static const Color errorStrong = Color(0xFFB91C1C); // red-700
 
   static ThemeData get lightTheme {
     final base = ThemeData(

@@ -94,6 +94,7 @@ class StaffDevicesTab extends ConsumerWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.copy_outlined),
+                          tooltip: 'Copy code',
                           onPressed: () {
                             Clipboard.setData(ClipboardData(text: code));
                             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Code copied.')));

@@ -253,6 +253,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         title: const Text('KhaoPiyo POS'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
+          tooltip: 'Back',
           onPressed: () => setState(() {
             _errorMessage = null;
             _step = _Step.landing;
