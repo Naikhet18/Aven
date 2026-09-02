@@ -188,7 +188,18 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
+            blurRadius: 24,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Card(
       elevation: 0,
       color: Theme.of(context).colorScheme.surface,
       shape: RoundedRectangleBorder(
@@ -230,6 +241,7 @@ class _MetricCard extends StatelessWidget {
                       value,
                       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.bold,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -248,6 +260,7 @@ class _MetricCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
       ),
     );
   }

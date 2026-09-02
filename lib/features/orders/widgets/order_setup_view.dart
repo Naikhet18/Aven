@@ -27,20 +27,29 @@ class _OrderSetupViewState extends State<OrderSetupView> {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 220),
-      switchInCurve: Curves.easeOut,
-      switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) => FadeTransition(
-        opacity: animation,
-        child: SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero).animate(animation),
-          child: child,
+    // While picking a table, the Android back button/gesture should return
+    // to the order-type step, not pop this screen out of the order flow
+    // entirely.
+    return PopScope(
+      canPop: !_pickingTable,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _pickingTable) setState(() => _pickingTable = false);
+      },
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 220),
+        switchInCurve: Curves.easeOut,
+        switchOutCurve: Curves.easeIn,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween<Offset>(begin: const Offset(0.04, 0), end: Offset.zero).animate(animation),
+            child: child,
+          ),
         ),
+        child: _pickingTable
+            ? _TablePickerStep(key: const ValueKey('table'), onBack: () => setState(() => _pickingTable = false), onTableSelected: (table) => widget.onComplete('DINE_IN', table))
+            : _OrderTypeStep(key: const ValueKey('type'), onChoose: _chooseType),
       ),
-      child: _pickingTable
-          ? _TablePickerStep(key: const ValueKey('table'), onBack: () => setState(() => _pickingTable = false), onTableSelected: (table) => widget.onComplete('DINE_IN', table))
-          : _OrderTypeStep(key: const ValueKey('type'), onChoose: _chooseType),
     );
   }
 }

@@ -372,6 +372,7 @@ class _SummaryRow extends StatelessWidget {
       fontSize: big ? 20 : 15,
       fontWeight: big ? FontWeight.w900 : FontWeight.bold,
       color: isError ? Theme.of(context).colorScheme.error : (big ? Theme.of(context).colorScheme.primary : null),
+      fontFeatures: const [FontFeature.tabularFigures()],
     );
 
     return Row(

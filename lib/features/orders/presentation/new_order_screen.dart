@@ -219,7 +219,10 @@ class _MenuItemCardState extends State<_MenuItemCard> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      label: '${widget.name}, ${Currency.format(widget.price, symbol: widget.currencySymbol)}',
+      child: GestureDetector(
       onTapDown: (_) => _setPressed(true),
       onTapUp: (_) => _setPressed(false),
       onTapCancel: () => _setPressed(false),
@@ -268,6 +271,7 @@ class _MenuItemCardState extends State<_MenuItemCard> {
             ),
           ),
         ),
+      ),
       ),
     );
   }
@@ -321,14 +325,18 @@ class _CategoryPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: category.name,
+      child: GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? Theme.of(context).colorScheme.primary 
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
@@ -354,6 +362,7 @@ class _CategoryPill extends StatelessWidget {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
           ),
         ),
+      ),
       ),
     );
   }
@@ -587,6 +596,7 @@ class _CartSection extends ConsumerWidget {
                         fontSize: 28,
                         fontWeight: FontWeight.w900,
                         color: Theme.of(context).colorScheme.primary,
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
                   ],
