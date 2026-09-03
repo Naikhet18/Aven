@@ -90,10 +90,12 @@ class _IngredientTile extends StatelessWidget {
               '${ingredient.currentStock} ${ingredient.unit}',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
+                fontFeatures: const [FontFeature.tabularFigures()],
                 color: ingredient.isLowStock ? Theme.of(context).colorScheme.error : null,
               ),
             ),
-            if (ingredient.isLowStock) const Text('LOW STOCK', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
+            if (ingredient.isLowStock)
+              Text('LOW STOCK', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.error)),
           ],
         ),
         onTap: () => showDialog(context: context, builder: (_) => AdjustStockDialog(ingredient: ingredient)),

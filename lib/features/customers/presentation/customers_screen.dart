@@ -26,8 +26,23 @@ class CustomersScreen extends ConsumerWidget {
         error: (err, _) => Center(child: Text('Error: $err')),
         data: (customers) {
           if (customers.isEmpty) {
-            return const Center(
-              child: Text('No customers yet. Attach a customer at checkout to start building loyalty history.'),
+            final scheme = Theme.of(context).colorScheme;
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.people_outline, size: 64, color: scheme.outline),
+                    const SizedBox(height: 16),
+                    Text(
+                      'No customers yet. Attach a customer at checkout to start building loyalty history.',
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.outline),
+                    ),
+                  ],
+                ),
+              ),
             );
           }
           return ListView.builder(
@@ -51,9 +66,17 @@ class _CustomerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Card(
       child: ListTile(
-        leading: CircleAvatar(child: Text((customer.name?.isNotEmpty ?? false) ? customer.name![0].toUpperCase() : '?')),
+        leading: CircleAvatar(
+          backgroundColor: scheme.primaryContainer.withValues(alpha: 0.5),
+          foregroundColor: scheme.primary,
+          child: Text(
+            (customer.name?.isNotEmpty ?? false) ? customer.name![0].toUpperCase() : '?',
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
         title: Text(customer.name ?? customer.phone ?? 'Unknown'),
         subtitle: Text(
           '${customer.phone ?? 'No phone'} • ${customer.totalOrders} orders • ${customer.loyaltyPoints} pts\n'
@@ -62,7 +85,7 @@ class _CustomerTile extends StatelessWidget {
         isThreeLine: true,
         trailing: Text(
           Currency.format(customer.totalSpent, symbol: currencySymbol),
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
         ),
       ),
     );

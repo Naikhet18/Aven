@@ -59,6 +59,7 @@ class ReportsScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildSummaryCard(
+                  context,
                   title: 'Revenue',
                   value: Currency.format(report.totalRevenue, symbol: currencySymbol),
                   icon: Icons.currency_exchange,
@@ -68,6 +69,7 @@ class ReportsScreen extends ConsumerWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSummaryCard(
+                  context,
                   title: 'Orders',
                   value: '${report.totalOrders}',
                   icon: Icons.receipt_long,
@@ -81,6 +83,7 @@ class ReportsScreen extends ConsumerWidget {
             children: [
               Expanded(
                 child: _buildSummaryCard(
+                  context,
                   title: 'Expenses',
                   value: Currency.format(report.totalExpenses, symbol: currencySymbol),
                   icon: Icons.money_off,
@@ -90,6 +93,7 @@ class ReportsScreen extends ConsumerWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: _buildSummaryCard(
+                  context,
                   title: 'Net Profit',
                   value: Currency.format(report.netProfit, symbol: currencySymbol),
                   icon: Icons.savings_outlined,
@@ -110,9 +114,12 @@ class ReportsScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             ...report.revenueByPaymentMethod.entries.map((e) => Card(
                   child: ListTile(
-                    leading: const Icon(Icons.payments_outlined),
+                    leading: Icon(Icons.payments_outlined, color: Theme.of(context).colorScheme.primary),
                     title: Text(e.key),
-                    trailing: Text(Currency.format(e.value, symbol: currencySymbol), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    trailing: Text(
+                      Currency.format(e.value, symbol: currencySymbol),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
+                    ),
                   ),
                 )),
           ],
@@ -120,20 +127,36 @@ class ReportsScreen extends ConsumerWidget {
           const Text('Top Selling Items', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           if (report.topItems.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(32.0),
-              child: Center(child: Text('No sales in this period', style: TextStyle(color: Colors.grey))),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Center(
+                child: Text(
+                  'No sales in this period',
+                  style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+              ),
             )
           else
             ...report.topItems.take(10).toList().asMap().entries.map((entry) {
               final index = entry.key;
               final item = entry.value;
+              final scheme = Theme.of(context).colorScheme;
               return Card(
                 child: ListTile(
-                  leading: CircleAvatar(child: Text('${index + 1}')),
+                  leading: CircleAvatar(
+                    backgroundColor: scheme.primaryContainer.withValues(alpha: 0.5),
+                    foregroundColor: scheme.primary,
+                    child: Text('${index + 1}', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
                   title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('Revenue: ${Currency.format(item.revenue, symbol: currencySymbol)}'),
-                  trailing: Text('${item.quantity.toInt()} sold', style: const TextStyle(fontSize: 16)),
+                  subtitle: Text(
+                    'Revenue: ${Currency.format(item.revenue, symbol: currencySymbol)}',
+                    style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()]),
+                  ),
+                  trailing: Text(
+                    '${item.quantity.toInt()} sold',
+                    style: const TextStyle(fontSize: 16, fontFeatures: [FontFeature.tabularFigures()]),
+                  ),
                 ),
               );
             }),
@@ -142,7 +165,8 @@ class ReportsScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSummaryCard({
+  Widget _buildSummaryCard(
+    BuildContext context, {
     required String title,
     required String value,
     required IconData icon,
@@ -158,12 +182,12 @@ class ReportsScreen extends ConsumerWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
-            Text(title, style: const TextStyle(color: Colors.grey)),
+            Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
           ],
         ),
       ),
