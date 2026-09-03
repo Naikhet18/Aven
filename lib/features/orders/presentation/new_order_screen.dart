@@ -10,6 +10,7 @@ import 'package:khao_piyo_pos/features/orders/widgets/discount_dialog.dart';
 import 'package:khao_piyo_pos/features/orders/widgets/order_setup_view.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/category.dart';
+import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
 
 class NewOrderScreen extends ConsumerWidget {
   const NewOrderScreen({super.key});
@@ -198,7 +199,7 @@ class _MenuSection extends ConsumerWidget {
   }
 }
 
-class _MenuItemCard extends StatefulWidget {
+class _MenuItemCard extends StatelessWidget {
   final String name;
   final double price;
   final String currencySymbol;
@@ -207,71 +208,51 @@ class _MenuItemCard extends StatefulWidget {
   const _MenuItemCard({required this.name, required this.price, required this.currencySymbol, required this.onTap});
 
   @override
-  State<_MenuItemCard> createState() => _MenuItemCardState();
-}
-
-class _MenuItemCardState extends State<_MenuItemCard> {
-  bool _pressed = false;
-
-  void _setPressed(bool value) => setState(() => _pressed = value);
-
-  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Semantics(
-      button: true,
-      label: '${widget.name}, ${Currency.format(widget.price, symbol: widget.currencySymbol)}',
-      child: GestureDetector(
-      onTapDown: (_) => _setPressed(true),
-      onTapUp: (_) => _setPressed(false),
-      onTapCancel: () => _setPressed(false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _pressed ? 0.95 : 1.0,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-        child: Card(
-          clipBehavior: Clip.antiAlias,
-          color: scheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.3)),
-          ),
-          elevation: 0,
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: scheme.primaryContainer.withValues(alpha: 0.3),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.fastfood_rounded, size: 48, color: scheme.primary),
-                    ),
+    return PressableScale(
+      onTap: onTap,
+      semanticLabel: '$name, ${Currency.format(price, symbol: currencySymbol)}',
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        color: scheme.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.3)),
+        ),
+        elevation: 0,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.fastfood_rounded, size: 48, color: scheme.primary),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  widget.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  Currency.format(widget.price, symbol: widget.currencySymbol),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                name,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                Currency.format(price, symbol: currencySymbol),
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
+              ),
+            ],
           ),
         ),
-      ),
       ),
     );
   }
@@ -325,12 +306,11 @@ class _CategoryPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      selected: isSelected,
-      label: category.name,
-      child: GestureDetector(
+    return PressableScale(
       onTap: onTap,
+      scaleDown: 0.94,
+      semanticLabel: category.name,
+      semanticSelected: isSelected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -362,7 +342,6 @@ class _CategoryPill extends StatelessWidget {
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
           ),
         ),
-      ),
       ),
     );
   }

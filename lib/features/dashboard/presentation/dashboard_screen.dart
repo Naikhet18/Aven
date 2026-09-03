@@ -9,6 +9,7 @@ import 'package:khao_piyo_pos/features/kitchen/providers/kitchen_provider.dart';
 import 'package:khao_piyo_pos/features/orders/presentation/qr_scan_screen.dart';
 import 'package:khao_piyo_pos/features/reports/providers/reports_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
+import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -188,7 +189,11 @@ class _MetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return PressableScale(
+      onTap: onTap,
+      scaleDown: 0.97,
+      semanticLabel: onTap == null ? null : '$title, $value, $trend',
+      child: Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -208,9 +213,6 @@ class _MetricCard extends StatelessWidget {
           color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
         ),
       ),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(20.0),
           child: Row(
@@ -281,9 +283,9 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return PressableScale(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      semanticLabel: label,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         decoration: BoxDecoration(
