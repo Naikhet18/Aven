@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
+  // Bundled locally as a variable font (assets/fonts/Outfit-Variable.ttf) --
+  // Flutter/Skia interpolates the correct visual weight from the font's own
+  // wght axis for any FontWeight used below, so one ~110KB file covers every
+  // weight with zero network dependency. See the pubspec.yaml fonts: entry.
+  static const String fontFamily = 'Outfit';
+
   // Emerald / Teal Primary
   static const Color primaryColor = Color(0xFF0F766E);
   static const Color secondaryColor = Color(0xFFF59E0B); // Amber
@@ -53,20 +58,21 @@ class AppTheme {
 
   static ThemeData _applySharedStyles(ThemeData base) {
     return base.copyWith(
-      textTheme: GoogleFonts.outfitTextTheme(base.textTheme).copyWith(
-        displayLarge: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
-        displayMedium: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
-        titleLarge: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
-        titleMedium: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
-        bodyLarge: GoogleFonts.outfit(fontSize: 16, color: base.colorScheme.onSurface),
-        bodyMedium: GoogleFonts.outfit(fontSize: 14, color: base.colorScheme.onSurface),
+      textTheme: base.textTheme.apply(fontFamily: fontFamily).copyWith(
+        displayLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
+        displayMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
+        titleLarge: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
+        titleMedium: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
+        bodyLarge: TextStyle(fontFamily: fontFamily, fontSize: 16, color: base.colorScheme.onSurface),
+        bodyMedium: TextStyle(fontFamily: fontFamily, fontSize: 14, color: base.colorScheme.onSurface),
       ),
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: TextStyle(
+          fontFamily: fontFamily,
           fontSize: 24,
           fontWeight: FontWeight.bold,
           color: base.colorScheme.onSurface,
@@ -91,7 +97,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
       filledButtonTheme: FilledButtonThemeData(
@@ -99,7 +105,7 @@ class AppTheme {
           elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          textStyle: GoogleFonts.outfit(fontSize: 16, fontWeight: FontWeight.bold),
+          textStyle: TextStyle(fontFamily: fontFamily, fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -127,7 +133,7 @@ class AppTheme {
         backgroundColor: base.colorScheme.surface,
         indicatorColor: primaryColor.withValues(alpha: 0.1),
         labelTextStyle: WidgetStateProperty.all(
-          GoogleFonts.outfit(fontSize: 12, fontWeight: FontWeight.w600),
+          TextStyle(fontFamily: fontFamily, fontSize: 12, fontWeight: FontWeight.w600),
         ),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -142,24 +148,24 @@ class AppTheme {
         indicatorColor: primaryColor.withValues(alpha: 0.1),
         selectedIconTheme: const IconThemeData(color: primaryColor, size: 32),
         unselectedIconTheme: IconThemeData(color: base.colorScheme.onSurfaceVariant, size: 28),
-        selectedLabelTextStyle: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w600, color: primaryColor),
-        unselectedLabelTextStyle: GoogleFonts.outfit(fontSize: 13, fontWeight: FontWeight.w500, color: base.colorScheme.onSurfaceVariant),
+        selectedLabelTextStyle: TextStyle(fontFamily: fontFamily, fontSize: 13, fontWeight: FontWeight.w600, color: primaryColor),
+        unselectedLabelTextStyle: TextStyle(fontFamily: fontFamily, fontSize: 13, fontWeight: FontWeight.w500, color: base.colorScheme.onSurfaceVariant),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: base.colorScheme.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        titleTextStyle: GoogleFonts.outfit(fontSize: 20, fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
+        titleTextStyle: TextStyle(fontFamily: fontFamily, fontSize: 20, fontWeight: FontWeight.bold, color: base.colorScheme.onSurface),
       ),
       snackBarTheme: SnackBarThemeData(
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: base.colorScheme.inverseSurface,
-        contentTextStyle: GoogleFonts.outfit(color: base.colorScheme.onInverseSurface),
+        contentTextStyle: TextStyle(fontFamily: fontFamily, color: base.colorScheme.onInverseSurface),
       ),
       chipTheme: ChipThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         side: BorderSide(color: base.colorScheme.outlineVariant.withValues(alpha: 0.4)),
-        labelStyle: GoogleFonts.outfit(fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
+        labelStyle: TextStyle(fontFamily: fontFamily, fontWeight: FontWeight.w600, color: base.colorScheme.onSurface),
       ),
       splashFactory: InkSparkle.splashFactory,
       visualDensity: VisualDensity.adaptivePlatformDensity,

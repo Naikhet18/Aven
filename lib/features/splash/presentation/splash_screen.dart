@@ -3,7 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
@@ -152,7 +151,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                     builder: (context, _) => _ShimmerText(
                       text: 'KhaoPiyo',
                       sweep: _loop.value,
-                      style: GoogleFonts.outfit(fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                      style: const TextStyle(fontFamily: AppTheme.fontFamily, fontSize: 32, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                     ),
                   ),
                 ),
@@ -162,7 +161,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with TickerProvider
                 opacity: _textSlide,
                 child: Text(
                   'Loading your restaurant…',
-                  style: GoogleFonts.outfit(color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
+                  style: TextStyle(fontFamily: AppTheme.fontFamily, color: Colors.white.withValues(alpha: 0.7), fontSize: 14),
                 ),
               ),
               const SizedBox(height: 36),
