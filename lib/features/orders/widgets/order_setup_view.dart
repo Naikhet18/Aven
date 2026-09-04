@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:khao_piyo_pos/features/orders/widgets/table_grid.dart';
+import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
 
 /// The very first thing a cashier sees when starting a new order: pick the
 /// order type, and for Dine In, which table it's for. Takeaway/Counter need
@@ -76,13 +77,15 @@ class _OrderTypeStep extends StatelessWidget {
             icon: Icons.table_restaurant_rounded,
             title: 'Dine In',
             subtitle: 'Pick a table',
+            color: Theme.of(context).colorScheme.primary,
             onTap: () => onChoose('DINE_IN'),
           ),
           const SizedBox(height: 16),
           _OrderTypeCard(
-            icon: Icons.shopping_bag_outlined,
+            icon: Icons.shopping_bag_rounded,
             title: 'Takeaway',
             subtitle: 'Customer collects the order',
+            color: Theme.of(context).colorScheme.tertiary,
             onTap: () => onChoose('TAKEAWAY'),
           ),
           const SizedBox(height: 16),
@@ -90,6 +93,7 @@ class _OrderTypeStep extends StatelessWidget {
             icon: Icons.point_of_sale_rounded,
             title: 'Counter',
             subtitle: 'Quick walk-up sale',
+            color: Theme.of(context).colorScheme.secondary,
             onTap: () => onChoose('COUNTER'),
           ),
         ],
@@ -102,46 +106,45 @@ class _OrderTypeCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String subtitle;
+  final Color color;
   final VoidCallback onTap;
 
-  const _OrderTypeCard({required this.icon, required this.title, required this.subtitle, required this.onTap});
+  const _OrderTypeCard({required this.icon, required this.title, required this.subtitle, required this.color, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: scheme.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.4)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(color: scheme.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
-                child: Icon(icon, color: scheme.primary, size: 28),
+    return PressableScale(
+      onTap: onTap,
+      scaleDown: 0.98,
+      semanticLabel: '$title, $subtitle',
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(16)),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 2),
+                  Text(subtitle, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 2),
-                    Text(subtitle, style: TextStyle(fontSize: 13, color: scheme.onSurfaceVariant)),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios_rounded, size: 16, color: scheme.onSurfaceVariant),
-            ],
-          ),
+            ),
+            Icon(Icons.arrow_forward_ios_rounded, size: 16, color: scheme.onSurfaceVariant),
+          ],
         ),
       ),
     );

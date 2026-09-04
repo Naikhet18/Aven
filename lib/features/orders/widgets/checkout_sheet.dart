@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/orders/providers/cart_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/printer_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
+import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
 
 class CheckoutSheet extends ConsumerStatefulWidget {
   const CheckoutSheet({super.key});
@@ -212,9 +214,9 @@ class _OrderSummarySection extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5)),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [
@@ -406,23 +408,26 @@ class _MethodCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final scheme = Theme.of(context).colorScheme;
+    return PressableScale(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      scaleDown: 0.98,
+      semanticLabel: title,
+      semanticSelected: isSelected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surface,
+          color: isSelected ? scheme.primaryContainer : scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: isSelected ? scheme.primary : scheme.outlineVariant.withValues(alpha: 0.3),
             width: isSelected ? 2 : 1,
           ),
         ),
         child: Row(
           children: [
-            Icon(icon, size: 28, color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(icon, size: 28, color: isSelected ? scheme.primary : scheme.onSurfaceVariant),
             const SizedBox(width: 16),
             Expanded(
               child: Text(
@@ -431,13 +436,13 @@ class _MethodCard extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.onSurface,
+                  color: isSelected ? scheme.onPrimaryContainer : scheme.onSurface,
                 ),
               ),
             ),
             if (isSelected) ...[
               const SizedBox(width: 8),
-              Icon(Icons.check_circle, color: Theme.of(context).colorScheme.primary),
+              Icon(Icons.check_circle, color: scheme.primary),
             ],
           ],
         ),
@@ -461,23 +466,29 @@ class _QuickCashPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    final scheme = Theme.of(context).colorScheme;
+    return PressableScale(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
+      scaleDown: 0.94,
+      semanticLabel: label,
+      semanticSelected: isSelected,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+          gradient: isSelected
+              ? LinearGradient(colors: [AppTheme.primaryColor, Color.lerp(AppTheme.primaryColor, Colors.black, 0.25)!])
+              : null,
+          color: isSelected ? null : scheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: isSelected ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant),
+          border: Border.all(color: isSelected ? Colors.transparent : scheme.outlineVariant.withValues(alpha: 0.3)),
         ),
         child: Text(
           label,
           style: TextStyle(
             fontSize: 16,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-            color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurface,
+            color: isSelected ? Colors.white : scheme.onSurface,
           ),
         ),
       ),

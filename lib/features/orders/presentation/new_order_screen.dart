@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/menu/providers/menu_provider.dart';
 import 'package:khao_piyo_pos/features/orders/providers/cart_provider.dart';
@@ -216,7 +217,7 @@ class _MenuItemCard extends StatelessWidget {
       semanticLabel: '$name, ${Currency.format(price, symbol: currencySymbol)}',
       child: Card(
         clipBehavior: Clip.antiAlias,
-        color: scheme.surface,
+        color: scheme.surfaceContainerLow,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.3)),
@@ -315,9 +316,10 @@ class _CategoryPill extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected
-              ? Theme.of(context).colorScheme.primary
-              : Theme.of(context).colorScheme.surface,
+          gradient: isSelected
+              ? LinearGradient(colors: [AppTheme.primaryColor, Color.lerp(AppTheme.primaryColor, Colors.black, 0.25)!])
+              : null,
+          color: isSelected ? null : Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: isSelected 
