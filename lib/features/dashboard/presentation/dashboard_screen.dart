@@ -4,12 +4,15 @@ import 'package:go_router/go_router.dart';
 import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/billing/providers/billing_provider.dart';
+import 'package:khao_piyo_pos/features/dashboard/providers/dashboard_comparison_provider.dart';
 import 'package:khao_piyo_pos/features/inventory/providers/inventory_provider.dart';
 import 'package:khao_piyo_pos/features/kitchen/providers/kitchen_provider.dart';
 import 'package:khao_piyo_pos/features/orders/presentation/qr_scan_screen.dart';
-import 'package:khao_piyo_pos/features/reports/providers/reports_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
+import 'package:khao_piyo_pos/shared/widgets/animated_counter.dart';
 import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
+import 'package:khao_piyo_pos/shared/widgets/sync_status_chip.dart';
+import 'package:khao_piyo_pos/shared/widgets/trend_badge.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -24,111 +27,132 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
-    final reportAsync = ref.watch(dailyReportProvider);
+    final comparisonAsync = ref.watch(dashboardComparisonProvider);
     final activeOrdersAsync = ref.watch(activeOrdersStreamProvider);
     final unpaidOrdersAsync = ref.watch(unpaidOrdersStreamProvider);
     final lowStockAsync = ref.watch(lowStockIngredientsProvider);
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(dailyReportProvider);
+            ref.invalidate(dashboardComparisonProvider);
             ref.invalidate(lowStockIngredientsProvider);
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  '${_greeting()}, ${settings.name}',
-                  style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${_greeting()}, ${settings.name}',
+                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Padding(
+                      padding: EdgeInsets.only(top: 4),
+                      child: SyncStatusChip(),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Text(
                   "Here is what's happening at your business today.",
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: scheme.onSurfaceVariant,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
+
+                // Hero card: the day's headline number, given real visual
+                // weight (gradient, large type, live count-up) instead of
+                // being just another tile in a uniform grid.
+                _HeroSalesCard(
+                  comparisonAsync: comparisonAsync,
+                  currencySymbol: settings.currencySymbol,
+                  isDark: isDark,
+                ),
+
+                const SizedBox(height: 16),
 
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final crossAxisCount = constraints.maxWidth > 800 ? 4 : (constraints.maxWidth > 500 ? 2 : 1);
-                    return GridView.count(
-                      crossAxisCount: crossAxisCount,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 16,
+                    final crossAxisCount = constraints.maxWidth > 500 ? 3 : 1;
+                    // A fixed row height (not an aspect ratio) so the card's
+                    // fixed-height content -- icon, count-up number, title,
+                    // subtitle -- always fits regardless of column count or
+                    // screen width; an aspect ratio scales height with width,
+                    // which doesn't track fixed text content and overflows
+                    // on narrow phones.
+                    return GridView(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
+                        mainAxisExtent: crossAxisCount == 1 ? 118 : 172,
+                      ),
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 2,
                       children: [
-                        _MetricCard(
-                          title: "Today's Sales",
-                          value: reportAsync.when(
-                            data: (r) => Currency.format(r.totalRevenue, symbol: settings.currencySymbol),
-                            loading: () => '…',
-                            error: (_, _) => '—',
-                          ),
-                          trend: reportAsync.when(
-                            data: (r) => '${r.totalOrders} completed orders today',
-                            loading: () => '',
-                            error: (_, _) => 'Could not load',
-                          ),
-                          icon: Icons.trending_up,
-                          color: Theme.of(context).colorScheme.primary,
-                        ),
-                        _MetricCard(
+                        _BentoStatCard(
                           title: 'Active Orders',
                           value: activeOrdersAsync.when(
-                            data: (orders) => '${orders.length}',
-                            loading: () => '…',
-                            error: (_, _) => '—',
+                            data: (orders) => orders.length.toDouble(),
+                            loading: () => null,
+                            error: (_, _) => null,
                           ),
-                          trend: 'Being prepared right now',
-                          icon: Icons.receipt_long,
+                          subtitle: 'Being prepared right now',
+                          icon: Icons.receipt_long_rounded,
                           color: AppTheme.warning,
                           onTap: () => context.go('/kitchen'),
+                          horizontal: crossAxisCount == 1,
                         ),
-                        _MetricCard(
-                          title: 'Low Stock Items',
+                        _BentoStatCard(
+                          title: 'Low Stock',
                           value: lowStockAsync.when(
-                            data: (items) => '${items.length}',
-                            loading: () => '…',
-                            error: (_, _) => '—',
+                            data: (items) => items.length.toDouble(),
+                            loading: () => null,
+                            error: (_, _) => null,
                           ),
-                          trend: lowStockAsync.when(
+                          subtitle: lowStockAsync.when(
                             data: (items) => items.isEmpty ? 'All stocked up' : items.take(3).map((i) => i.name).join(', '),
                             loading: () => '',
                             error: (_, _) => 'Could not load',
                           ),
-                          icon: Icons.inventory_2,
+                          icon: Icons.inventory_2_rounded,
                           color: AppTheme.error,
                           onTap: () => context.go('/inventory'),
+                          horizontal: crossAxisCount == 1,
                         ),
-                        _MetricCard(
-                          title: 'Unpaid Orders',
+                        _BentoStatCard(
+                          title: 'Unpaid',
                           value: unpaidOrdersAsync.when(
-                            data: (orders) => '${orders.length}',
-                            loading: () => '…',
-                            error: (_, _) => '—',
+                            data: (orders) => orders.length.toDouble(),
+                            loading: () => null,
+                            error: (_, _) => null,
                           ),
-                          trend: 'Awaiting payment',
-                          icon: Icons.payments_outlined,
-                          color: Colors.blueAccent,
+                          subtitle: 'Awaiting payment',
+                          icon: Icons.payments_rounded,
+                          color: scheme.tertiary,
                           onTap: () => context.go('/billing'),
+                          horizontal: crossAxisCount == 1,
                         ),
                       ],
                     );
                   },
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 36),
 
                 Text(
                   'Quick Actions',
@@ -138,23 +162,23 @@ class DashboardScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Wrap(
-                  spacing: 16,
-                  runSpacing: 16,
+                  spacing: 12,
+                  runSpacing: 12,
                   children: [
                     _QuickActionButton(
                       label: 'New POS Order',
-                      icon: Icons.point_of_sale,
+                      icon: Icons.point_of_sale_rounded,
                       onTap: () => context.go('/new-order'),
                       isPrimary: true,
                     ),
                     _QuickActionButton(
                       label: 'Kitchen Display',
-                      icon: Icons.kitchen,
+                      icon: Icons.soup_kitchen_rounded,
                       onTap: () => context.go('/kitchen'),
                     ),
                     _QuickActionButton(
                       label: 'Scan Table QR',
-                      icon: Icons.qr_code_scanner,
+                      icon: Icons.qr_code_scanner_rounded,
                       onTap: () => Navigator.of(context).push(
                         MaterialPageRoute(builder: (_) => const QrScanScreen()),
                       ),
@@ -170,99 +194,189 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-class _MetricCard extends StatelessWidget {
+class _HeroSalesCard extends StatelessWidget {
+  final AsyncValue<DashboardComparison> comparisonAsync;
+  final String currencySymbol;
+  final bool isDark;
+
+  const _HeroSalesCard({required this.comparisonAsync, required this.currencySymbol, required this.isDark});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: AppTheme.heroGradient(dark: isDark),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primaryColor.withValues(alpha: 0.28),
+            blurRadius: 28,
+            offset: const Offset(0, 14),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          children: [
+            // A faint oversized icon as a signature decorative touch --
+            // pure Flutter, zero asset weight, reads as intentional brand
+            // texture rather than a placeholder.
+            Positioned(
+              right: -18,
+              bottom: -24,
+              child: Icon(Icons.storefront_rounded, size: 140, color: Colors.white.withValues(alpha: 0.08)),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Today's Sales",
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.78), fontWeight: FontWeight.w600, fontSize: 15),
+                  ),
+                  const SizedBox(height: 10),
+                  comparisonAsync.when(
+                    data: (c) => AnimatedCounter(
+                      value: c.todayRevenue,
+                      formatter: (v) => Currency.format(v, symbol: currencySymbol),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 40,
+                        fontWeight: FontWeight.bold,
+                        fontFeatures: [FontFeature.tabularFigures()],
+                        height: 1.0,
+                      ),
+                    ),
+                    loading: () => const Text('…', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+                    error: (_, _) => const Text('—', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
+                    children: [
+                      comparisonAsync.maybeWhen(
+                        data: (c) => TrendBadge(percent: c.revenueChangePercent, onTint: true),
+                        orElse: () => const SizedBox.shrink(),
+                      ),
+                      const SizedBox(width: 8),
+                      Text('vs yesterday', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
+                      const Spacer(),
+                      comparisonAsync.maybeWhen(
+                        data: (c) => Row(
+                          children: [
+                            const Icon(Icons.receipt_long_rounded, size: 16, color: Colors.white70),
+                            const SizedBox(width: 6),
+                            Text(
+                              '${c.todayOrders} orders',
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]),
+                            ),
+                          ],
+                        ),
+                        orElse: () => const SizedBox.shrink(),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BentoStatCard extends StatelessWidget {
   final String title;
-  final String value;
-  final String trend;
+  final double? value;
+  final String subtitle;
   final IconData icon;
   final Color color;
   final VoidCallback? onTap;
+  final bool horizontal;
 
-  const _MetricCard({
+  const _BentoStatCard({
     required this.title,
     required this.value,
-    required this.trend,
+    required this.subtitle,
     required this.icon,
     required this.color,
     this.onTap,
+    this.horizontal = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return PressableScale(
-      onTap: onTap,
-      scaleDown: 0.97,
-      semanticLabel: onTap == null ? null : '$title, $value, $trend',
-      child: Container(
+    final scheme = Theme.of(context).colorScheme;
+    final v = value;
+
+    final iconBadge = Container(
+      padding: const EdgeInsets.all(9),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.04),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
       ),
-      child: Card(
-      elevation: 0,
-      color: Theme.of(context).colorScheme.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.3),
-        ),
-      ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
+      child: Icon(icon, color: color, size: 22),
+    );
+
+    final counter = v == null
+        ? const Text('…', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
+        : AnimatedCounter(
+            value: v,
+            formatter: (n) => n.toInt().toString(),
+            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
+          );
+
+    final titleText = Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: scheme.onSurfaceVariant));
+    final subtitleText = Text(
+      subtitle,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant.withValues(alpha: 0.75)),
+    );
+
+    final content = horizontal
+        ? Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Icon(icon, color: color, size: 32),
-              ),
-              const SizedBox(width: 16),
+              iconBadge,
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontFeatures: const [FontFeature.tabularFigures()],
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      trend,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
-                      ),
-                    ),
-                  ],
+                  mainAxisSize: MainAxisSize.min,
+                  children: [counter, const SizedBox(height: 2), titleText, const SizedBox(height: 2), subtitleText],
                 ),
               ),
             ],
-          ),
+          )
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              iconBadge,
+              const SizedBox(height: 12),
+              counter,
+              const SizedBox(height: 2),
+              titleText,
+              const SizedBox(height: 2),
+              subtitleText,
+            ],
+          );
+
+    return PressableScale(
+      onTap: onTap,
+      scaleDown: 0.96,
+      semanticLabel: onTap == null ? null : '$title, ${v?.toInt() ?? '—'}, $subtitle',
+      child: Container(
+        decoration: BoxDecoration(
+          color: scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.25)),
         ),
-      ),
+        padding: const EdgeInsets.all(16.0),
+        child: content,
       ),
     );
   }
@@ -283,36 +397,42 @@ class _QuickActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return PressableScale(
       onTap: onTap,
       semanticLabel: label,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
         decoration: BoxDecoration(
-          color: isPrimary ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(16),
+          gradient: isPrimary
+              ? LinearGradient(colors: [AppTheme.primaryColor, Color.lerp(AppTheme.primaryColor, Colors.black, 0.25)!])
+              : null,
+          color: isPrimary ? null : scheme.surfaceContainerLow,
+          borderRadius: BorderRadius.circular(AppTheme.pillRadius),
           border: Border.all(
-            color: isPrimary ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: isPrimary ? Colors.transparent : scheme.outlineVariant.withValues(alpha: 0.4),
           ),
-          boxShadow: isPrimary ? [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            )
-          ] : [],
+          boxShadow: isPrimary
+              ? [
+                  BoxShadow(
+                    color: AppTheme.primaryColor.withValues(alpha: 0.35),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
+                  )
+                ]
+              : [],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: isPrimary ? Colors.white : Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
+            Icon(icon, color: isPrimary ? Colors.white : scheme.primary, size: 20),
+            const SizedBox(width: 10),
             Text(
               label,
               style: TextStyle(
-                color: isPrimary ? Colors.white : Theme.of(context).colorScheme.onSurface,
+                color: isPrimary ? Colors.white : scheme.onSurface,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
+                fontSize: 15,
               ),
             ),
           ],
