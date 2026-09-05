@@ -72,7 +72,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       gstNumber: _gstController.text,
       receiptFooter: _footerController.text,
       taxRatePercent: double.tryParse(_taxController.text) ?? 0,
-      currencySymbol: _currencyController.text.trim().isEmpty ? '₹' : _currencyController.text.trim(),
+      currencySymbol: _currencyController.text.trim().isEmpty
+          ? '₹'
+          : _currencyController.text.trim(),
     );
     ref.read(settingsProvider.notifier).updateSettings(settings);
     ScaffoldMessenger.of(context).showSnackBar(
@@ -85,10 +87,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Log out?'),
-        content: const Text('You will need to sign in again to use this device.'),
+        content: const Text(
+          'You will need to sign in again to use this device.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Log out')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Log out'),
+          ),
         ],
       ),
     );
@@ -122,7 +132,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onPressed: _logout,
             icon: const Icon(Icons.logout),
             label: const Text('Log out'),
-            style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16)),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+            ),
           ),
         ),
       );
@@ -168,23 +180,35 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         children: [
           TextField(
             controller: _nameController,
-            decoration: const InputDecoration(labelText: 'Business Name', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Business Name',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _addressController,
-            decoration: const InputDecoration(labelText: 'Address', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Address',
+              border: OutlineInputBorder(),
+            ),
             maxLines: 2,
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _phoneController,
-            decoration: const InputDecoration(labelText: 'Phone Number', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Phone Number',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 16),
           TextField(
             controller: _gstController,
-            decoration: const InputDecoration(labelText: 'GST / Tax Number', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'GST / Tax Number',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 16),
           Row(
@@ -192,15 +216,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               Expanded(
                 child: TextField(
                   controller: _taxController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  decoration: const InputDecoration(labelText: 'Tax rate (%)', border: OutlineInputBorder()),
+                  keyboardType: const TextInputType.numberWithOptions(
+                    decimal: true,
+                  ),
+                  decoration: const InputDecoration(
+                    labelText: 'Tax rate (%)',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextField(
                   controller: _currencyController,
-                  decoration: const InputDecoration(labelText: 'Currency symbol', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(
+                    labelText: 'Currency symbol',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
               ),
             ],
@@ -218,7 +250,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 16),
           TextField(
             controller: _footerController,
-            decoration: const InputDecoration(labelText: 'Receipt Footer Message', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Receipt Footer Message',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 24),
           FilledButton.icon(
@@ -240,17 +275,32 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Receipt printer', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Receipt printer',
+          style: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         SegmentedButton<PrinterConnectionType>(
           segments: const [
-            ButtonSegment(value: PrinterConnectionType.none, label: Text('None')),
-            ButtonSegment(value: PrinterConnectionType.bluetooth, label: Text('Bluetooth')),
-            ButtonSegment(value: PrinterConnectionType.network, label: Text('Network')),
+            ButtonSegment(
+              value: PrinterConnectionType.none,
+              label: Text('None'),
+            ),
+            ButtonSegment(
+              value: PrinterConnectionType.bluetooth,
+              label: Text('Bluetooth'),
+            ),
+            ButtonSegment(
+              value: PrinterConnectionType.network,
+              label: Text('Network'),
+            ),
           ],
           selected: {config.receiptType},
           onSelectionChanged: (set) {
-            ref.read(printerConfigProvider.notifier).update(config.copyWith(receiptType: set.first));
+            ref
+                .read(printerConfigProvider.notifier)
+                .update(config.copyWith(receiptType: set.first));
           },
         ),
         const SizedBox(height: 16),
@@ -265,11 +315,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               ),
               connectionStatusAsync.when(
                 data: (connected) => Chip(
-                  label: Text(connected ? 'Connected' : 'Not connected', style: TextStyle(color: connected ? AppTheme.success : null)),
-                  backgroundColor: connected ? AppTheme.success.withValues(alpha: 0.15) : null,
-                  avatar: Icon(connected ? Icons.check_circle : Icons.circle_outlined, size: 16, color: connected ? AppTheme.success : null),
+                  label: Text(
+                    connected ? 'Connected' : 'Not connected',
+                    style: TextStyle(
+                      color: connected ? AppTheme.success : null,
+                    ),
+                  ),
+                  backgroundColor: connected
+                      ? AppTheme.success.withValues(alpha: 0.15)
+                      : null,
+                  avatar: Icon(
+                    connected ? Icons.check_circle : Icons.circle_outlined,
+                    size: 16,
+                    color: connected ? AppTheme.success : null,
+                  ),
                 ),
-                loading: () => const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2)),
+                loading: () => const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
                 error: (_, _) => const SizedBox.shrink(),
               ),
             ],
@@ -277,7 +342,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           const SizedBox(height: 12),
           OutlinedButton.icon(
             onPressed: () async {
-              await [Permission.bluetoothScan, Permission.bluetoothConnect, Permission.location].request();
+              await [
+                Permission.bluetoothScan,
+                Permission.bluetoothConnect,
+                Permission.location,
+              ].request();
               ref.invalidate(pairedBluetoothDevicesProvider);
             },
             icon: const Icon(Icons.bluetooth_searching),
@@ -289,20 +358,34 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             error: (err, _) => Text('Error: $err'),
             data: (devices) {
               if (devices.isEmpty) {
-                return const Text('No paired Bluetooth devices found. Pair your printer in system Bluetooth settings first.');
+                return const Text(
+                  'No paired Bluetooth devices found. Pair your printer in system Bluetooth settings first.',
+                );
               }
               return Column(
                 children: devices.map((d) {
                   final selected = d.macAdress == config.receiptBluetoothMac;
                   return Card(
                     child: ListTile(
-                      leading: Icon(selected ? Icons.print : Icons.print_outlined),
+                      leading: Icon(
+                        selected ? Icons.print : Icons.print_outlined,
+                      ),
                       title: Text(d.name),
                       subtitle: Text(d.macAdress),
-                      trailing: selected ? const Icon(Icons.check_circle, color: AppTheme.success) : null,
+                      trailing: selected
+                          ? const Icon(
+                              Icons.check_circle,
+                              color: AppTheme.success,
+                            )
+                          : null,
                       onTap: () {
-                        ref.read(printerConfigProvider.notifier).update(
-                              config.copyWith(receiptBluetoothMac: d.macAdress, receiptBluetoothName: d.name),
+                        ref
+                            .read(printerConfigProvider.notifier)
+                            .update(
+                              config.copyWith(
+                                receiptBluetoothMac: d.macAdress,
+                                receiptBluetoothName: d.name,
+                              ),
                             );
                         ref.invalidate(bluetoothConnectionStatusProvider);
                       },
@@ -316,36 +399,57 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         if (config.receiptType == PrinterConnectionType.network) ...[
           TextField(
             controller: _networkHostController,
-            decoration: const InputDecoration(labelText: 'Printer IP address', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Printer IP address',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _networkPortController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'Port (default 9100)', border: OutlineInputBorder()),
+            decoration: const InputDecoration(
+              labelText: 'Port (default 9100)',
+              border: OutlineInputBorder(),
+            ),
           ),
           const SizedBox(height: 12),
           FilledButton(
             onPressed: () {
-              ref.read(printerConfigProvider.notifier).update(config.copyWith(
-                    receiptNetworkHost: _networkHostController.text.trim(),
-                    receiptNetworkPort: int.tryParse(_networkPortController.text) ?? 9100,
-                  ));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Network printer saved.')));
+              ref
+                  .read(printerConfigProvider.notifier)
+                  .update(
+                    config.copyWith(
+                      receiptNetworkHost: _networkHostController.text.trim(),
+                      receiptNetworkPort:
+                          int.tryParse(_networkPortController.text) ?? 9100,
+                    ),
+                  );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Network printer saved.')),
+              );
             },
             child: const Text('Save network printer'),
           ),
         ],
         const Divider(height: 48),
-        Text('Kitchen ticket printing', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+        Text(
+          'Kitchen ticket printing',
+          style: Theme.of(context).textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 8),
         SwitchListTile(
           contentPadding: EdgeInsets.zero,
           title: const Text('Auto-print kitchen ticket for new orders'),
-          subtitle: const Text('Uses the receipt printer unless a separate kitchen printer is set up.'),
+          subtitle: const Text(
+            'Uses the receipt printer unless a separate kitchen printer is set up.',
+          ),
           value: config.kotAutoPrint,
           onChanged: (val) {
-            ref.read(printerConfigProvider.notifier).update(config.copyWith(kotAutoPrint: val));
+            ref
+                .read(printerConfigProvider.notifier)
+                .update(config.copyWith(kotAutoPrint: val));
           },
         ),
       ],

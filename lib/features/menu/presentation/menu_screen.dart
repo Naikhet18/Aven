@@ -144,6 +144,7 @@ class MenuScreen extends ConsumerWidget {
 
     showModalBottomSheet(
       context: context,
+      useRootNavigator: true,
       isScrollControlled: true,
       builder: (context) => AddMenuItemSheet(
         categories: state.categories,

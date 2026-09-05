@@ -9,27 +9,93 @@ class AppScaffold extends ConsumerWidget {
 
   const AppScaffold({super.key, required this.child});
 
+  // A single stable key for the narrow-layout Scaffold so the "More" button
+  // can open its end drawer via Scaffold.of()-equivalent access without
+  // needing a BuildContext below the Scaffold itself (the NavigationBar's
+  // onDestinationSelected only has the context AppScaffold was built with,
+  // which sits above, not below, the Scaffold it renders).
+  static final GlobalKey<ScaffoldState> _scaffoldKey =
+      GlobalKey<ScaffoldState>();
+
   // Shown directly in the bottom nav bar (mobile) and always visible in the
   // rail (tablet/desktop) -- the screens a cashier touches constantly.
   // `rolesAllowed: null` means every role can see it.
   static const List<_Destination> _primaryDestinations = [
-    _Destination('Dashboard', '/', Icons.dashboard_outlined, Icons.dashboard, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('New Order', '/new-order', Icons.point_of_sale_outlined, Icons.point_of_sale),
+    _Destination(
+      'Dashboard',
+      '/',
+      Icons.dashboard_outlined,
+      Icons.dashboard,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'New Order',
+      '/new-order',
+      Icons.point_of_sale_outlined,
+      Icons.point_of_sale,
+    ),
     _Destination('Kitchen', '/kitchen', Icons.kitchen_outlined, Icons.kitchen),
-    _Destination('Billing', '/billing', Icons.payments_outlined, Icons.payments, rolesAllowed: {'OWNER', 'MANAGER'}),
+    _Destination(
+      'Billing',
+      '/billing',
+      Icons.payments_outlined,
+      Icons.payments,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
   ];
 
   // Shown in the rail alongside the primary destinations on wide screens;
-  // tucked behind a "More" sheet on mobile so the bottom bar doesn't end up
+  // tucked behind a "More" drawer on mobile so the bottom bar doesn't end up
   // with ten items.
   static const List<_Destination> _secondaryDestinations = [
-    _Destination('Orders', '/orders', Icons.receipt_long_outlined, Icons.receipt_long, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('Menu', '/menu', Icons.restaurant_menu_outlined, Icons.restaurant_menu, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('Inventory', '/inventory', Icons.inventory_2_outlined, Icons.inventory_2, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('Customers', '/customers', Icons.people_outline, Icons.people, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('Finance', '/finance', Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, rolesAllowed: {'OWNER'}),
-    _Destination('Reports', '/reports', Icons.bar_chart_outlined, Icons.bar_chart, rolesAllowed: {'OWNER', 'MANAGER'}),
-    _Destination('Settings', '/settings', Icons.settings_outlined, Icons.settings),
+    _Destination(
+      'Orders',
+      '/orders',
+      Icons.receipt_long_outlined,
+      Icons.receipt_long,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'Menu',
+      '/menu',
+      Icons.restaurant_menu_outlined,
+      Icons.restaurant_menu,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'Inventory',
+      '/inventory',
+      Icons.inventory_2_outlined,
+      Icons.inventory_2,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'Customers',
+      '/customers',
+      Icons.people_outline,
+      Icons.people,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'Finance',
+      '/finance',
+      Icons.account_balance_wallet_outlined,
+      Icons.account_balance_wallet,
+      rolesAllowed: {'OWNER'},
+    ),
+    _Destination(
+      'Reports',
+      '/reports',
+      Icons.bar_chart_outlined,
+      Icons.bar_chart,
+      rolesAllowed: {'OWNER', 'MANAGER'},
+    ),
+    _Destination(
+      'Settings',
+      '/settings',
+      Icons.settings_outlined,
+      Icons.settings,
+    ),
   ];
 
   @override
@@ -40,8 +106,12 @@ class AppScaffold extends ConsumerWidget {
     }
 
     final role = ref.watch(currentStaffRoleProvider);
-    final primary = _primaryDestinations.where((d) => d.allowsRole(role)).toList();
-    final secondary = _secondaryDestinations.where((d) => d.allowsRole(role)).toList();
+    final primary = _primaryDestinations
+        .where((d) => d.allowsRole(role))
+        .toList();
+    final secondary = _secondaryDestinations
+        .where((d) => d.allowsRole(role))
+        .toList();
     final location = GoRouterState.of(context).matchedLocation;
 
     return LayoutBuilder(
@@ -57,15 +127,19 @@ class AppScaffold extends ConsumerWidget {
                   onDestinationSelected: (index) => context.go(all[index].path),
                   labelType: NavigationRailLabelType.all,
                   destinations: all
-                      .map((d) => NavigationRailDestination(
-                            icon: Icon(d.icon),
-                            selectedIcon: Icon(d.selectedIcon),
-                            label: Text(d.label),
-                          ))
+                      .map(
+                        (d) => NavigationRailDestination(
+                          icon: Icon(d.icon),
+                          selectedIcon: Icon(d.selectedIcon),
+                          label: Text(d.label),
+                        ),
+                      )
                       .toList(),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
-                Expanded(child: _AnimatedTab(location: location, child: child)),
+                Expanded(
+                  child: _AnimatedTab(location: location, child: child),
+                ),
               ],
             ),
           );
@@ -73,24 +147,65 @@ class AppScaffold extends ConsumerWidget {
 
         final primaryIndex = _matchIndex(primary, location);
         final isOnSecondary = primaryIndex < 0;
+        // "More" opens an end drawer rather than a modal bottom sheet -- a
+        // sheet pushed a real Route from inside the shell's nested
+        // Navigator, and calling context.go() from that same callback
+        // stack reliably left the destination keyed correctly in the tab
+        // switcher but with no page content under it. A Drawer isn't a
+        // route, so it doesn't have that problem, but closing it still
+        // needs care: calling closeEndDrawer() synchronously in the same
+        // callback as context.go() reproduced the identical bug (confirmed
+        // via GoRouter's own NavigatorObserver: the destination page was
+        // pushed, then something immediately pushed '/' straight back on
+        // top of it and removed the destination, ~200ms later -- Drawer's
+        // own close animation racing the just-started route transition).
+        // Deferring the close to the next frame avoids the race entirely.
         return Scaffold(
+          key: _scaffoldKey,
           body: _AnimatedTab(location: location, child: child),
+          endDrawer: Drawer(
+            child: SafeArea(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: secondary.map((d) {
+                  final selected =
+                      _matchIndex(secondary, location) == secondary.indexOf(d);
+                  return ListTile(
+                    leading: Icon(selected ? d.selectedIcon : d.icon),
+                    title: Text(d.label),
+                    selected: selected,
+                    onTap: () {
+                      context.go(d.path);
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        _scaffoldKey.currentState?.closeEndDrawer();
+                      });
+                    },
+                  );
+                }).toList(),
+              ),
+            ),
+          ),
           bottomNavigationBar: NavigationBar(
             selectedIndex: isOnSecondary ? primary.length : primaryIndex,
             onDestinationSelected: (index) {
               if (index == primary.length) {
-                _showMoreSheet(context, location, secondary);
+                _scaffoldKey.currentState?.openEndDrawer();
               } else {
                 context.go(primary[index].path);
               }
             },
             destinations: [
-              ...primary.map((d) => NavigationDestination(
-                    icon: Icon(d.icon),
-                    selectedIcon: Icon(d.selectedIcon),
-                    label: d.label,
-                  )),
-              const NavigationDestination(icon: Icon(Icons.more_horiz), label: 'More'),
+              ...primary.map(
+                (d) => NavigationDestination(
+                  icon: Icon(d.icon),
+                  selectedIcon: Icon(d.selectedIcon),
+                  label: d.label,
+                ),
+              ),
+              const NavigationDestination(
+                icon: Icon(Icons.more_horiz),
+                label: 'More',
+              ),
             ],
           ),
         );
@@ -104,32 +219,6 @@ class AppScaffold extends ConsumerWidget {
       if (path == '/' ? location == '/' : location.startsWith(path)) return i;
     }
     return -1;
-  }
-
-  void _showMoreSheet(BuildContext context, String location, List<_Destination> secondary) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (sheetContext) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: secondary.map((d) {
-              final selected = _matchIndex(secondary, location) == secondary.indexOf(d);
-              return ListTile(
-                leading: Icon(selected ? d.selectedIcon : d.icon),
-                title: Text(d.label),
-                selected: selected,
-                onTap: () {
-                  Navigator.of(sheetContext).pop();
-                  context.go(d.path);
-                },
-              );
-            }).toList(),
-          ),
-        );
-      },
-    );
   }
 }
 
@@ -149,7 +238,8 @@ class _AnimatedTab extends StatelessWidget {
       duration: const Duration(milliseconds: 180),
       switchInCurve: Curves.easeOut,
       switchOutCurve: Curves.easeIn,
-      transitionBuilder: (child, animation) => FadeTransition(opacity: animation, child: child),
+      transitionBuilder: (child, animation) =>
+          FadeTransition(opacity: animation, child: child),
       child: KeyedSubtree(key: ValueKey(segment), child: child),
     );
   }
@@ -168,11 +258,18 @@ class _Destination {
   /// Roles allowed to see this destination. Null means every role can.
   final Set<String>? rolesAllowed;
 
-  const _Destination(this.label, this.path, this.icon, this.selectedIcon, {this.rolesAllowed});
+  const _Destination(
+    this.label,
+    this.path,
+    this.icon,
+    this.selectedIcon, {
+    this.rolesAllowed,
+  });
 
   // A null role means a business_id was stored before roles existed --
   // treat it as full access (see the matching note on isRouteAllowedForRole
   // in staff_role_provider.dart) rather than hiding destinations from a
   // real, already-working owner.
-  bool allowsRole(String? role) => role == null || rolesAllowed == null || rolesAllowed!.contains(role);
+  bool allowsRole(String? role) =>
+      role == null || rolesAllowed == null || rolesAllowed!.contains(role);
 }

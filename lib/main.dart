@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:khao_piyo_pos/core/config/app_router.dart';
 import 'package:khao_piyo_pos/core/config/env.dart';
@@ -20,22 +21,26 @@ void main() async {
 
   runApp(
     ProviderScope(
-      overrides: [
-        sharedPreferencesProvider.overrideWithValue(prefs),
-      ],
-      child: const KhaoPiyoApp(),
+      overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
+      child: KhaoPiyoApp(prefs: prefs),
     ),
   );
 }
 
 class KhaoPiyoApp extends ConsumerStatefulWidget {
-  const KhaoPiyoApp({super.key});
+  final SharedPreferences prefs;
+  const KhaoPiyoApp({super.key, required this.prefs});
 
   @override
   ConsumerState<KhaoPiyoApp> createState() => _KhaoPiyoAppState();
 }
 
 class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
+  // Built once (not per-build) using the SharedPreferences instance main()
+  // already loaded, so the router's redirect can read it synchronously --
+  // see the comment on buildAppRouter for why that matters.
+  late final GoRouter _router = buildAppRouter(widget.prefs);
+
   @override
   void initState() {
     super.initState();
@@ -66,7 +71,7 @@ class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      routerConfig: appRouter,
+      routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );
   }

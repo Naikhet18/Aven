@@ -79,6 +79,7 @@ class _OrderWorkspace extends ConsumerWidget {
             onPressed: () {
               showModalBottomSheet(
                 context: context,
+                useRootNavigator: true,
                 isScrollControlled: true,
                 useSafeArea: true,
                 backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -611,6 +612,7 @@ class _CartSection extends ConsumerWidget {
                             : () {
                                 showModalBottomSheet(
                                   context: context,
+                                  useRootNavigator: true,
                                   isScrollControlled: true,
                                   backgroundColor: Colors.transparent,
                                   builder: (context) => const CheckoutSheet(),

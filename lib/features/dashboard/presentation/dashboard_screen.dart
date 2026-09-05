@@ -48,22 +48,33 @@ class DashboardScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Text(
-                        '${_greeting()}, ${settings.name}',
-                        style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        _greeting(),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4),
-                      child: SyncStatusChip(),
-                    ),
+                    const SyncStatusChip(),
                   ],
+                ),
+                const SizedBox(height: 4),
+                // The business name has no length limit the app controls --
+                // cap it to two lines so a long name can never balloon the
+                // header into most of the screen the way an uncapped
+                // display-size headline did.
+                Text(
+                  settings.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
