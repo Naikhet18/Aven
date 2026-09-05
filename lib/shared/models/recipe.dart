@@ -28,6 +28,6 @@ class Recipe {
         'menu_item_id': menuItemId,
         'ingredient_id': ingredientId,
         'quantity_required': quantityRequired,
-        'created_at': createdAt?.toIso8601String(),
+        'created_at': createdAt?.toUtc().toIso8601String(),
       };
 }

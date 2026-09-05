@@ -38,6 +38,39 @@ void main() {
       expect(restored.discountType, order.discountType);
     });
 
+    test('Order.toJson always encodes timestamps as UTC, even from a local DateTime', () {
+      // Every production timestamp starts life as DateTime.now() -- local,
+      // not UTC. Supabase's timestamptz columns interpret a timezone-less
+      // ISO string as if it were already UTC, so serializing a local
+      // DateTime's wall-clock fields verbatim silently shifts the stored
+      // instant by the device's UTC offset (this was a real bug: it showed
+      // up as a kitchen ticket reporting a *negative* elapsed time). The
+      // fix is calling .toUtc() before .toIso8601String(); this test pins
+      // that down at the encoding level, which a same-process round-trip
+      // through Order.fromJson wouldn't catch on its own since Dart parses
+      // its own un-marked string back the same (wrong) way it wrote it.
+      final localNow = DateTime(2026, 8, 29, 21, 38, 0);
+      final order = Order(
+        id: 'order-3',
+        businessId: 'biz-1',
+        orderNumber: '260829-C1-001',
+        orderType: 'COUNTER',
+        status: 'NEW',
+        paymentStatus: 'UNPAID',
+        subtotal: 50,
+        tax: 0,
+        discount: 0,
+        total: 50,
+        createdAt: localNow,
+        updatedAt: localNow,
+      );
+
+      final encoded = order.toJson()['created_at'] as String;
+
+      expect(encoded.endsWith('Z'), isTrue, reason: 'created_at must be UTC-marked, got "$encoded"');
+      expect(DateTime.parse(encoded).isAtSameMomentAs(localNow), isTrue);
+    });
+
     test('Order.fromJson handles Supabase snake_case keys and null timestamps', () {
       final json = {
         'id': 'order-2',

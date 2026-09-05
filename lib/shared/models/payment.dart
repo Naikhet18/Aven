@@ -33,7 +33,7 @@ class Payment {
         'business_id': businessId,
         'payment_method': paymentMethod,
         'amount': amount,
-        'payment_time': paymentTime?.toIso8601String(),
+        'payment_time': paymentTime?.toUtc().toIso8601String(),
         'device_id': deviceId,
       };
 }

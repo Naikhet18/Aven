@@ -93,8 +93,8 @@ class _OrderWorkspace extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'View Cart (${cartState.items.length} items)', 
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)
+                  'View Cart (${cartState.items.length} ${cartState.items.length == 1 ? 'item' : 'items'})',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Text(
                   Currency.format(total, symbol: settings.currencySymbol),

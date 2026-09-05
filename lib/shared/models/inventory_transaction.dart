@@ -48,7 +48,7 @@ class InventoryTransaction {
         'supplier_id': supplierId,
         'cost': cost,
         'notes': notes,
-        'created_at': createdAt?.toIso8601String(),
+        'created_at': createdAt?.toUtc().toIso8601String(),
         'created_by_device': createdByDevice,
       };
 }

@@ -44,9 +44,9 @@ class MenuItem {
         'price': price,
         'is_available': isAvailable,
         'sort_order': sortOrder,
-        'created_at': createdAt?.toIso8601String(),
-        'updated_at': updatedAt?.toIso8601String(),
-        'deleted_at': deletedAt?.toIso8601String(),
+        'created_at': createdAt?.toUtc().toIso8601String(),
+        'updated_at': updatedAt?.toUtc().toIso8601String(),
+        'deleted_at': deletedAt?.toUtc().toIso8601String(),
       };
 
   MenuItem copyWith({
