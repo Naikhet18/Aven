@@ -25,20 +25,20 @@
 
 ### 🤖 Android
 
-<a href="https://github.com/Naikhet18/Aven/releases/latest/download/Aven-v1.0.0-android.apk">
+<a href="https://github.com/Naikhet18/Aven/releases/latest/download/Aven-android.apk">
   <img src="https://img.shields.io/badge/Download%20APK-Android-brightgreen?style=for-the-badge&logo=android">
 </a>
 
-> **Android:** Download the APK and install it. *(If prompted, allow installation from unknown sources in your settings).*
+**Latest release:** `v1.0.0` | **APK size:** `534 MB`
+
+> Download the APK → install → you're in. 🚀
+
+⚠️ **Android Installation Note:** Because you are downloading this directly from GitHub instead of the Play Store, Android will show a standard prompt warning about "installing from unknown sources." You can safely click "Settings" on that prompt and toggle the switch to allow installation for your browser.
 
 ### 🍎 iOS
 
-<a href="#">
-  <img src="https://img.shields.io/badge/Download%20on%20the-App%20Store-black?style=for-the-badge&logo=apple">
-</a>
-
-> **iOS:** `YOUR_APP_STORE_LINK` | `YOUR_TESTFLIGHT_LINK`
-> *(iOS distribution coming soon. App Store/TestFlight placeholders to be updated upon release).*
+> iOS distribution coming soon.
+> I'm currently keeping this project **100% free** while I cook. 🧑‍🍳
 
 </p>
 

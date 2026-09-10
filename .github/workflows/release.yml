@@ -41,12 +41,12 @@ jobs:
       - name: Rename APK
         run: |
           # The built APK is at build/app/outputs/flutter-apk/app-release.apk
-          mv build/app/outputs/flutter-apk/app-release.apk Aven-${{ github.ref_name }}-android.apk
+          mv build/app/outputs/flutter-apk/app-release.apk Aven-android.apk
 
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
         with:
-          files: Aven-${{ github.ref_name }}-android.apk
+          files: Aven-android.apk
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
