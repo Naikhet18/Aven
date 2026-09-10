@@ -19,30 +19,120 @@
 
 ---
 
-# 📲 Download the App
+# 💸 Current Cost
+
+> **$0**
+
+For this private testing phase:
+* **GitHub** → free
+* **GitHub Releases** → free
+* **Android APK distribution** → free
+* **SideStore** → open source
+* **iOS sideloading** → free Apple Account approach
+
+Future official distribution can move to Apple App Store + Google Play when the project is ready.
+
+---
+
+# 📲 Download
 
 <p align="center">
 
 ### 🤖 Android
 
 <a href="https://github.com/Naikhet18/Aven/releases/latest/download/Aven-android.apk">
-  <img src="https://img.shields.io/badge/Download%20APK-Android-brightgreen?style=for-the-badge&logo=android">
+  <img src="https://img.shields.io/badge/🤖%20Download%20Android%20APK-brightgreen?style=for-the-badge&logo=android">
 </a>
 
-**Latest release:** `v1.0.0` | **APK size:** `534 MB`
+**Latest release:** `v1.0.0`
 
 > Download the APK → install → you're in. 🚀
 
-⚠️ **Android Installation Note:** Because you are downloading this directly from GitHub instead of the Play Store, Android will show a standard prompt warning about "installing from unknown sources." You can safely click "Settings" on that prompt and toggle the switch to allow installation for your browser.
+⚠️ **Android Installation Note:** Because you are downloading this directly from GitHub instead of the Play Store, Android will show a standard prompt warning about "installing from unknown sources." You can safely click "Settings" on that prompt and toggle the switch to allow installation.
 
 ### 🍎 iOS
 
-> iOS distribution coming soon.
-> I'm currently keeping this project **100% free** while I cook. 🧑‍🍳
+<a href="https://github.com/Naikhet18/Aven/releases/latest/download/Aven-ios.ipa">
+  <img src="https://img.shields.io/badge/🍎%20Download%20iOS%20IPA-SideStore-black?style=for-the-badge">
+</a>
+
+> See the installation guide below for how to install this on your iPhone for free without an Apple Developer account.
 
 </p>
 
 ---
+
+## 🍎 iPhone Installation — Free
+
+Made this POS specifically for my people. Apple said "pay up" — we're currently choosing another route. 💀
+
+Because this app isn't on the App Store yet, iPhone users can use **SideStore** to install the IPA directly.
+
+### Step 1 — Install SideStore
+SideStore lets you sideload apps using your free Apple Account.
+* **Official Website:** [https://sidestore.io/](https://sidestore.io/)
+* **Official Installation Guide:** [https://docs.sidestore.io/docs/installation/install](https://docs.sidestore.io/docs/installation/install)
+
+### Step 2 — Check Requirements
+To install SideStore initially, you need:
+* iPhone/iPad running iOS/iPadOS 15.0+
+* A free Apple Account
+* A computer (macOS, Windows, Linux, or supported Chromebook) for the **initial** installation.
+* Wi-Fi connection
+* *Check the [Official Prerequisites](https://docs.sidestore.io/docs/installation/prerequisites) for current details.*
+
+### Step 3 — The Installation Flow
+1. Connect your iPhone to your computer via USB.
+2. Follow the official guide to install SideStore onto your phone.
+3. Trust your developer profile in your iPhone Settings.
+4. Open SideStore on your phone and sign in with your Apple Account.
+
+### Step 4 — Install My Restaurant POS
+Once SideStore is working on your phone:
+1. Download the latest `Aven-ios.ipa` from the Download button above.
+2. Open/Share the `.ipa` file with the SideStore app.
+3. Choose **Install**.
+4. Launch the restaurant POS and start taking orders!
+
+### 🔄 Updating the POS
+When a new version is released:
+Download the latest IPA → Open in SideStore → Update.
+
+---
+
+> [!WARNING]
+> ### ⚠️ Before you install (SideStore Limitations)
+> This is an unofficial/private sideloading distribution method.
+> SideStore relies on Apple's free development signing system and periodically refreshes apps to prevent the normal short signing period (7 days) from expiring.
+> You may need to keep SideStore and its required VPN functionality configured correctly for background refreshing to work.
+> Apple can change its policies or technical behavior at any time. SideStore periodically refreshes apps so they can continue working beyond the normal free signing period, subject to Apple's limitations and SideStore's current functionality.
+
+> [!CAUTION]
+> ### 🔐 Security
+> **Never** enter your Apple Account password into this project's website, GitHub repository, or random third-party services. When setting up SideStore, only follow the [official SideStore documentation](https://docs.sidestore.io/) and enter credentials directly into their official app.
+
+---
+
+## 🍽️ Built For The Restaurant
+
+This isn't another generic demo app. It's a POS I built specifically for a few restaurants I know. We stripped away the bloat and added what actually matters:
+
+* 🧾 **Billing:** Split bills, custom totals, easy checkout.
+* 🍔 **Menu Management:** Control inventory and stock.
+* 🪑 **Table Management:** Track dine-in states effortlessly.
+* 📦 **Orders:** Unified order processing.
+* 👨‍🍳 **Kitchen Workflow (KDS):** Real-time Kitchen Display System sync. Stop screaming across the room.
+* 👥 **Staff:** Onboard servers instantly via QR Code.
+* 🔐 **Authentication:** Secure Multi-tenant business logic.
+* 🖨️ **Thermal Printing:** Direct Bluetooth receipt printing.
+
+---
+
+## 🎥 See It In Action
+
+<p align="center">
+  <img src="assets/videos/aven_logo_reveal_final_20260909234039.gif" width="300" alt="Aven Startup Demo">
+</p>
 
 ### 📱 The UI
 
@@ -53,61 +143,25 @@
 
 ---
 
-## ✨ Why you'll probably love this
-
-* ⚡ **Offline-First:** Because restaurant Wi-Fi is universally terrible. Driven by local `Drift` SQLite caching.
-* 🌙 **True OLED Dark Mode:** Pitch-black `#040404` backgrounds and neon accents. Saves battery, saves your eyes, looks insanely premium.
-* 📱 **QR Onboarding:** Staff can join your business by literally just scanning a QR code. No setup hell.
-* 🖨️ **Bluetooth Thermal Printing:** It actually prints physical receipts to generic Bluetooth printers. Yes, it was painful to build. You're welcome.
-* 🔥 **Real-time Sync:** Kitchen gets orders instantly. Waiters see status updates instantly. No more screaming across the room.
-
----
-
 ## 🛠️ Tech Stack
 
-### 📱 Mobile Front-End
 * **Framework:** [Flutter](https://flutter.dev/) (Dart)
 * **State Management:** Riverpod
 * **Routing:** GoRouter
 * **Local DB:** Drift (SQLite)
-
-### ☁️ Backend & Cloud
-* **BaaS:** [Supabase](https://supabase.com/)
-* **Database:** PostgreSQL
-* **Auth:** Supabase Auth (Multi-tenant business architecture)
-
-### 🔌 Hardware Integrations
-* **Printing:** `print_bluetooth_thermal`
-* **Scanning:** `mobile_scanner` (Google MLKit)
-
----
-
-## 🏗️ Architecture
-
-```mermaid
-graph TD
-    A[Flutter Mobile App] --> B(Drift Local SQLite)
-    A --> C{Supabase Realtime}
-    C --> D[(PostgreSQL)]
-    A -.-> E[Bluetooth Thermal Printer]
-    A -.-> F[Camera Barcode Scanner]
-    
-    style A fill:#040404,stroke:#AvenGreen,stroke-width:2px,color:#fff
-    style B fill:#1C1C1E,stroke:#414141,color:#fff
-    style C fill:#3ECF8E,stroke:#fff,color:#000
-    style D fill:#3ECF8E,stroke:#fff,color:#000
-```
+* **BaaS & DB:** [Supabase](https://supabase.com/) & PostgreSQL
+* **Hardware Integrations:** `print_bluetooth_thermal` & `mobile_scanner`
 
 ---
 
 ## 🚀 Getting Started
 
-Getting this running locally is ridiculously easy.
+Getting this running locally for development is ridiculously easy.
 
 ### Requirements
 * Flutter SDK (`>=3.13.2`)
 * Dart SDK
-* Supabase project (Free tier is perfectly fine)
+* Supabase project
 
 ### 1. Clone the repo
 ```bash
@@ -130,85 +184,38 @@ SUPABASE_ANON_KEY=your_anon_key
 
 ### 4. Run the app
 ```bash
-# To run on a connected Android/iOS device
 flutter run --dart-define-from-file=.env
-
-# To build the production universal APK
-flutter build apk --release --dart-define-from-file=.env
 ```
 
 ---
 
-## ✅ First Release Checklist
+## 🚀 First Release Checklist
 
 ### 🤖 Android
-- [x] Production/release APK builds successfully
-- [x] APK installs successfully on a real Android device
-- [x] App name is correct
-- [x] App icon is correct
-- [x] Version name is correct
-- [x] Version code is correct
-- [ ] Release APK is attached to GitHub Release
-- [ ] APK download button works from README
-- [ ] GitHub Actions release workflow tested
-- [ ] Signing configuration verified
-- [ ] Google Play Store listing created
-- [ ] Google Play Store screenshots uploaded
-- [ ] Google Play Store description added
-- [ ] Privacy policy URL added if required
-- [ ] Content rating completed
-- [ ] App published to Google Play
+- [x] Build release APK
+- [x] Test APK
+- [x] Create GitHub Release
+- [x] Upload APK
+- [ ] Test direct APK link
+- [ ] Test README download button
 
 ### 🍎 iOS
-- [x] iOS build succeeds
-- [x] Bundle identifier is correct
-- [x] App name is correct
-- [x] App icon is correct
-- [x] Version/build number is correct
-- [ ] Signing configuration verified
-- [ ] App tested on a real iPhone
-- [ ] TestFlight configured
-- [ ] TestFlight invitation link added to README
-- [ ] App Store listing created
-- [ ] App Store screenshots uploaded
-- [ ] App Store description added
-- [ ] Privacy information completed
-- [ ] App submitted for review
-- [ ] App approved
-- [ ] App Store download link added to README
-
-### 🐙 GitHub
-- [x] Repository description is polished
-- [x] README is complete
-- [ ] Screenshots added
-- [x] Demo/GIF added if available
-- [ ] GitHub topics/tags added
-- [ ] LICENSE added
-- [x] `.gitignore` verified
-- [x] No API keys/secrets committed
-- [x] GitHub Actions verified
-- [ ] First GitHub Release created
-- [ ] Release notes written
-- [ ] APK attached to release
-- [ ] README download buttons tested
+- [x] Build release IPA (Unsigned Payload for SideStore)
+- [ ] Test IPA with SideStore
+- [x] Create GitHub Release
+- [x] Upload IPA
+- [ ] Test direct IPA download
+- [ ] Test installation on a real iPhone
+- [ ] Confirm SideStore refresh works
+- [ ] Test POS with real restaurant workflow
 
 ### 🔐 Security
-- [x] No secrets committed to Git
-- [x] `.env` files excluded from Git
-- [x] Production API configuration verified
-- [x] Debug logging disabled where appropriate
-- [x] Release build verified
-- [x] Required security/privacy documentation added
-
-### 📸 Store Assets
-- [x] App icon
-- [ ] Android screenshots
-- [ ] iPhone screenshots
-- [ ] Feature graphic if required
-- [ ] App Store promotional assets if required
-- [ ] App description
-- [ ] Short description
-- [ ] Keywords/categories
+- [x] No API keys committed
+- [x] No Supabase service-role key exposed
+- [x] No Apple credentials committed
+- [x] No signing certificates/private keys committed
+- [x] `.env` files ignored
+- [x] Production configuration verified
 
 ---
 
@@ -224,49 +231,9 @@ Found a bug? Congrats, you're now part of the development team. 🫡
 
 ---
 
-## 🔐 Privacy & Security
-
-* **Authentication:** Handled entirely by Supabase Auth.
-* **Multi-Tenancy:** Row Level Security (RLS) policies strictly enforce that users can only read/write data for the `business_id` they belong to.
-* **Local Data:** Offline cached data is stored securely in SQLite via Drift.
-
----
-
 ## 📄 License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-## 🧑‍💻 Author
-
-Built with questionable amounts of caffeine by **Naikhet18**.
-
-* GitHub: [@Naikhet18](https://github.com/Naikhet18)
-
----
-
-## 💬 Support
-
-If this app somehow breaks your thermal printer, open an Issue.
-For general chats or feature requests, hit up the Discussions tab.
-
----
-
-## 🎯 Final "Publish This Thing" Checklist
-
-```text
-☐ Build release
-☐ Test Android APK
-☐ Test iOS build
-☐ Create GitHub Release
-☐ Upload APK
-☐ Publish Android app
-☐ Publish iOS app / TestFlight
-☐ Add store links to README
-☐ Verify every download button
-☐ Ship it 🚀
-```
 
 ---
 
