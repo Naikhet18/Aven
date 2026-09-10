@@ -44,12 +44,6 @@
 
 ---
 
-## 🎥 See It In Action
-
-<p align="center">
-  <img src="assets/videos/aven_logo_reveal_final_20260909234039.gif" width="300" alt="Aven Startup Demo">
-</p>
-
 ### 📱 The UI
 
 | Dashboard | Billing | Kitchen (KDS) |
