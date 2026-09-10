@@ -128,20 +128,6 @@ This isn't another generic demo app. It's a POS I built specifically for a few r
 
 ---
 
-## 🎥 See It In Action
-
-<p align="center">
-  <img src="assets/videos/aven_logo_reveal_final_20260909234039.gif" width="300" alt="Aven Startup Demo">
-</p>
-
-### 📱 The UI
-
-| Dashboard | Billing | Kitchen (KDS) |
-| :---: | :---: | :---: |
-| <img src="assets/screenshots/dashboard.png" width="250" alt="Dashboard"> | <img src="assets/screenshots/billing.png" width="250" alt="Billing"> | <img src="assets/screenshots/kitchen.png" width="250" alt="Kitchen"> |
-> *(Replace screenshot placeholders with actual images once uploaded to `assets/screenshots/`)*
-
----
 
 ## 🛠️ Tech Stack
 
