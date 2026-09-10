@@ -1,5 +1,5 @@
 name: khao_piyo_pos
-description: "A new Flutter project."
+description: "KhaoPiyo POS — offline-first, multi-device restaurant point-of-sale."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -54,7 +54,9 @@ dependencies:
   fl_chart: ^1.2.0
   permission_handler: ^11.3.0
   qr_flutter: ^4.1.0
-
+  flutter_animate: ^4.5.2
+  video_player: ^2.14.0
+  lottie: ^3.5.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -67,6 +69,15 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   build_runner: ^2.16.0
   drift_dev: ^2.34.5
+  flutter_launcher_icons: ^0.14.3
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_new.png"
+  adaptive_icon_background: "#040404"
+  adaptive_icon_foreground: "assets/images/logo_new.png"
+  min_sdk_android: 23
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,10 +90,12 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - assets/images/logo.png
+    - assets/images/logo_cropped.png
+    - assets/images/logo_new.png
+    - assets/images/splash_first_frame.jpg
+    - assets/videos/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -12,6 +12,7 @@ import 'package:khao_piyo_pos/features/orders/widgets/order_setup_view.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/category.dart';
 import 'package:khao_piyo_pos/shared/widgets/pressable_scale.dart';
+import 'package:khao_piyo_pos/shared/widgets/glass_card.dart';
 
 class NewOrderScreen extends ConsumerWidget {
   const NewOrderScreen({super.key});
@@ -122,8 +123,8 @@ class _MenuSection extends ConsumerWidget {
     final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return menuStateAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+      error: (err, stack) => const Center(child: Text('Failed to load menu.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
       data: (state) {
         if (state.categories.isEmpty) {
           return const Center(child: Text('No menu items available.'));
@@ -211,51 +212,50 @@ class _MenuItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
     return PressableScale(
       onTap: onTap,
+      scaleDown: 0.98,
       semanticLabel: '$name, ${Currency.format(price, symbol: currencySymbol)}',
-      child: Card(
-        clipBehavior: Clip.antiAlias,
-        color: scheme.surfaceContainerLow,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(color: scheme.outlineVariant.withValues(alpha: 0.3)),
-        ),
-        elevation: 0,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        child: GlassCard(
+          padding: const EdgeInsets.all(12.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: Container(
                   decoration: BoxDecoration(
-                    color: scheme.primaryContainer.withValues(alpha: 0.3),
-                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: [AppTheme.primaryColor.withValues(alpha: 0.2), Colors.transparent],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Center(
-                    child: Icon(Icons.fastfood_rounded, size: 48, color: scheme.primary),
+                    child: Icon(Icons.fastfood_rounded, size: 32, color: AppTheme.primaryColor.withValues(alpha: 0.8)),
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               Text(
                 name,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.white, letterSpacing: -0.3),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
                 Currency.format(price, symbol: currencySymbol),
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(color: scheme.primary, fontWeight: FontWeight.w800),
+                style: TextStyle(
+                  color: AppTheme.primaryColor.withValues(alpha: 0.9), 
+                  fontWeight: FontWeight.w800, 
+                  fontSize: 14,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ],
           ),
         ),
-      ),
     );
   }
 }
@@ -273,12 +273,8 @@ class _OrderContextBar extends ConsumerWidget {
       _ => (Icons.point_of_sale_rounded, 'Counter'),
     };
 
-    return Container(
+    return GlassCard(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: scheme.primary.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
-      ),
       child: Row(
         children: [
           Icon(icon, color: scheme.primary, size: 20),
@@ -310,39 +306,24 @@ class _CategoryPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return PressableScale(
       onTap: onTap,
-      scaleDown: 0.94,
+      scaleDown: 0.96,
       semanticLabel: category.name,
       semanticSelected: isSelected,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        decoration: BoxDecoration(
-          gradient: isSelected
-              ? LinearGradient(colors: [AppTheme.primaryColor, Color.lerp(AppTheme.primaryColor, Colors.black, 0.25)!])
-              : null,
-          color: isSelected ? null : Theme.of(context).colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: isSelected 
-                ? Colors.transparent 
-                : Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
-          ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            )
-          ] : [],
+      child: GlassCard(
+        opacity: isSelected ? 0.15 : 0.05,
+        border: Border.all(
+          color: isSelected ? AppTheme.primaryColor.withValues(alpha: 0.5) : Colors.white.withValues(alpha: 0.1),
         ),
-        alignment: Alignment.center,
-        child: Text(
-          category.name,
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: isSelected 
-                ? Colors.white 
-                : Theme.of(context).colorScheme.onSurface,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: Center(
+          child: Text(
+            category.name,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white70,
+              fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+              fontSize: 14,
+              letterSpacing: -0.2,
+            ),
           ),
         ),
       ),
@@ -362,18 +343,15 @@ class _CartSection extends ConsumerWidget {
     final total = cartState.totalFor(settings.taxRatePercent);
 
     return Container(
-      color: Theme.of(context).scaffoldBackgroundColor,
+      color: AppTheme.background,
       child: Column(
         children: [
           // Header & Order Type
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
+            decoration: const BoxDecoration(
               border: Border(
-                bottom: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5),
-                ),
+                bottom: BorderSide(color: Colors.white10),
               ),
             ),
             child: Column(
@@ -430,11 +408,10 @@ class _CartSection extends ConsumerWidget {
                         child: Row(
                           children: [
                             // Quantity Controls
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                            GlassCard(
+                              padding: EdgeInsets.zero,
+                              borderRadius: 12,
+                              opacity: 0.1,
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -521,15 +498,10 @@ class _CartSection extends ConsumerWidget {
           // Totals and Checkout
           Container(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, -5),
-                )
-              ],
+            decoration: const BoxDecoration(
+              border: Border(
+                top: BorderSide(color: Colors.white10),
+              ),
             ),
             child: Column(
               children: [

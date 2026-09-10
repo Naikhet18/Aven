@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
-        android:label="khao_piyo_pos"
+        android:label="Aven"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:enableOnBackInvokedCallback="true">

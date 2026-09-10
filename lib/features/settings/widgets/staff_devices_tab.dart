@@ -52,9 +52,10 @@ class StaffDevicesTab extends ConsumerWidget {
       try {
         await client.from('businesses').update({'join_code': JoinCode.generate()}).eq('id', businessId);
         break;
-      } catch (_) {
+      } catch (e) {
+        print('Error regenerating code: $e');
         if (attempt == 4 && context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not regenerate the code. Try again.')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Could not regenerate the code. Try again. $e')));
         }
       }
     }
@@ -77,13 +78,38 @@ class StaffDevicesTab extends ConsumerWidget {
           loading: () => const Center(child: Padding(padding: EdgeInsets.all(24), child: CircularProgressIndicator())),
           error: (err, _) => Text('Could not load the code. Check your connection.\n$err'),
           data: (code) {
-            if (code == null) return const Text('No code yet.');
+            if (code == null) {
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    children: [
+                      const Icon(Icons.qr_code_scanner, size: 64, color: Colors.white54),
+                      const SizedBox(height: 16),
+                      const Text('No Join Code Generated', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      const Text('Generate a code so staff can connect their devices.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54)),
+                      const SizedBox(height: 24),
+                      FilledButton.icon(
+                        onPressed: () => _regenerateCode(context, ref),
+                        icon: const Icon(Icons.add),
+                        label: const Text('Generate Code'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
             return Card(
               child: Padding(
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    QrImageView(data: 'khaopiyo://join/$code', size: 180),
+                    QrImageView(
+                      data: 'khaopiyo://join/$code', 
+                      size: 180,
+                      backgroundColor: Colors.white,
+                    ),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,

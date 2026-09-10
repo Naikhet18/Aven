@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/features/inventory/widgets/recipe_editor_dialog.dart';
 import 'package:khao_piyo_pos/features/menu/providers/menu_provider.dart';
 import 'package:khao_piyo_pos/features/menu/widgets/add_category_dialog.dart';
@@ -27,8 +28,8 @@ class MenuScreen extends ConsumerWidget {
         ],
       ),
       body: menuStateAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        error: (err, stack) => const Center(child: Text('Failed to load menu.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
         data: (state) {
           if (state.categories.isEmpty) {
             return Center(
@@ -51,7 +52,7 @@ class MenuScreen extends ConsumerWidget {
             child: Column(
               children: [
                 Container(
-                  color: Theme.of(context).cardColor,
+                  color: AppTheme.surfaceLow,
                   child: Row(
                     children: [
                       Expanded(
@@ -77,46 +78,50 @@ class MenuScreen extends ConsumerWidget {
                           .where((item) => item.categoryId == category.id)
                           .toList();
 
-                      return ListView.builder(
-                        padding: const EdgeInsets.all(8),
+                      return ListView.separated(
                         itemCount: categoryItems.length + 1,
+                        separatorBuilder: (_, _) => const Divider(height: 1, color: Colors.white10),
                         itemBuilder: (context, index) {
                           if (index == categoryItems.length) {
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              child: ElevatedButton.icon(
-                                onPressed: () => _showAddMenuItemSheet(
-                                    context, ref, category.id),
+                              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                              child: OutlinedButton.icon(
+                                onPressed: () => _showAddMenuItemSheet(context, ref, category.id),
                                 icon: const Icon(Icons.add),
                                 label: const Text('Add Item'),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  side: const BorderSide(color: Colors.white24),
+                                  foregroundColor: Colors.white,
+                                ),
                               ),
                             );
                           }
 
                           final item = categoryItems[index];
-                          return Card(
-                            child: ListTile(
-                              title: Text(item.name),
-                              subtitle: Text(Currency.format(item.price, symbol: currencySymbol)),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.set_meal_outlined),
-                                    tooltip: 'Edit recipe',
-                                    onPressed: () => showDialog(context: context, builder: (_) => RecipeEditorDialog(menuItem: item)),
-                                  ),
-                                  Switch(
-                                    value: item.isAvailable,
-                                    onChanged: (val) {
-                                      final updated = item.copyWith(isAvailable: val);
-                                      ref.read(menuProvider.notifier).updateMenuItem(updated);
-                                    },
-                                  ),
-                                ],
-                              ),
-                              onTap: () => _showAddMenuItemSheet(context, ref, category.id, itemToEdit: item),
+                          return ListTile(
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                            title: Text(item.name, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+                            subtitle: Text(Currency.format(item.price, symbol: currencySymbol), style: const TextStyle(color: Colors.white70)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.set_meal_outlined, color: Colors.white54),
+                                  tooltip: 'Edit recipe',
+                                  onPressed: () => showDialog(context: context, builder: (_) => RecipeEditorDialog(menuItem: item)),
+                                ),
+                                Switch(
+                                  value: item.isAvailable,
+                                  activeThumbColor: AppTheme.success,
+                                  onChanged: (val) {
+                                    final updated = item.copyWith(isAvailable: val);
+                                    ref.read(menuProvider.notifier).updateMenuItem(updated);
+                                  },
+                                ),
+                              ],
                             ),
+                            onTap: () => _showAddMenuItemSheet(context, ref, category.id, itemToEdit: item),
                           );
                         },
                       );

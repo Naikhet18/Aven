@@ -50,7 +50,7 @@ class SettingsNotifier extends Notifier<BusinessSettings> {
   BusinessSettings build() {
     final prefs = ref.watch(sharedPreferencesProvider);
     return BusinessSettings(
-      name: prefs.getString('setting_business_name') ?? 'KhaoPiyo Food Stall',
+      name: prefs.getString('setting_business_name') ?? 'My Restaurant',
       address: prefs.getString('setting_business_address') ?? '123 Main St',
       phone: prefs.getString('setting_business_phone') ?? '1234567890',
       gstNumber: prefs.getString('setting_business_gst') ?? '',

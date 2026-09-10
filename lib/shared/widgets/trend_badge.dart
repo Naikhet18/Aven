@@ -40,7 +40,7 @@ class TrendBadge extends StatelessWidget {
   Widget _pill({required IconData icon, required String label, required Color color, required Color background}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(AppTheme.pillRadius)),
+      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(AppTheme.radius)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
@@ -45,10 +46,10 @@ class _ExpensesTab extends ConsumerWidget {
     final currencySymbol = ref.watch(settingsProvider).currencySymbol;
 
     return expensesAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Error: $err')),
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+      error: (err, _) => const Center(child: Text('Failed to load expenses.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
       data: (expenses) {
-        if (expenses.isEmpty) return const Center(child: Text('No expenses recorded yet.'));
+        if (expenses.isEmpty) return const Center(child: Text('No expenses recorded yet.', style: TextStyle(color: Colors.white54)));
         final total = expenses.fold<double>(0, (sum, e) => sum + e.amount);
         return Column(
           children: [
@@ -90,10 +91,10 @@ class _SuppliersTab extends ConsumerWidget {
     final suppliersAsync = ref.watch(suppliersProvider);
 
     return suppliersAsync.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, _) => Center(child: Text('Error: $err')),
+      loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+      error: (err, _) => const Center(child: Text('Failed to load suppliers.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
       data: (suppliers) {
-        if (suppliers.isEmpty) return const Center(child: Text('No suppliers added yet.'));
+        if (suppliers.isEmpty) return const Center(child: Text('No suppliers added yet.', style: TextStyle(color: Colors.white54)));
         return ListView.builder(
           itemCount: suppliers.length,
           itemBuilder: (context, index) {

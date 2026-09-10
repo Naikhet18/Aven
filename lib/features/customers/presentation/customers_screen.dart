@@ -5,7 +5,8 @@ import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/customers/providers/customers_provider.dart';
 import 'package:khao_piyo_pos/features/settings/providers/settings_provider.dart';
 import 'package:khao_piyo_pos/shared/models/customer.dart';
-
+import 'package:khao_piyo_pos/shared/widgets/glass_card.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 class CustomersScreen extends ConsumerWidget {
   const CustomersScreen({super.key});
 
@@ -22,8 +23,8 @@ class CustomersScreen extends ConsumerWidget {
         ],
       ),
       body: customersAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        error: (err, _) => Center(child: Text('Failed to load customers.', textAlign: TextAlign.center, style: const TextStyle(color: Colors.white54))),
         data: (customers) {
           if (customers.isEmpty) {
             final scheme = Theme.of(context).colorScheme;
@@ -67,25 +68,28 @@ class _CustomerTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Card(
+    return GlassCard(
+      opacity: 0.05,
+      padding: EdgeInsets.zero,
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: scheme.primaryContainer.withValues(alpha: 0.5),
-          foregroundColor: scheme.primary,
+          backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.2),
+          foregroundColor: AppTheme.primaryColor,
           child: Text(
             (customer.name?.isNotEmpty ?? false) ? customer.name![0].toUpperCase() : '?',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
-        title: Text(customer.name ?? customer.phone ?? 'Unknown'),
+        title: Text(customer.name ?? customer.phone ?? 'Unknown', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
         subtitle: Text(
           '${customer.phone ?? 'No phone'} • ${customer.totalOrders} orders • ${customer.loyaltyPoints} pts\n'
           '${customer.lastVisit != null ? 'Last visit: ${DateFormat('dd MMM yyyy').format(customer.lastVisit!)}' : 'No visits yet'}',
+          style: const TextStyle(color: Colors.white70),
         ),
         isThreeLine: true,
         trailing: Text(
           Currency.format(customer.totalSpent, symbol: currencySymbol),
-          style: const TextStyle(fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
+          style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold, fontSize: 16, fontFeatures: [FontFeature.tabularFigures()]),
         ),
       ),
     );

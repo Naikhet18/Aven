@@ -4,18 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
 
-class AppScaffold extends ConsumerWidget {
+class AppScaffold extends ConsumerStatefulWidget {
   final Widget child;
 
   const AppScaffold({super.key, required this.child});
 
-  // A single stable key for the narrow-layout Scaffold so the "More" button
-  // can open its end drawer via Scaffold.of()-equivalent access without
-  // needing a BuildContext below the Scaffold itself (the NavigationBar's
-  // onDestinationSelected only has the context AppScaffold was built with,
-  // which sits above, not below, the Scaffold it renders).
-  static final GlobalKey<ScaffoldState> _scaffoldKey =
-      GlobalKey<ScaffoldState>();
+  @override
+  ConsumerState<AppScaffold> createState() => _AppScaffoldState();
+}
+
+class _AppScaffoldState extends ConsumerState<AppScaffold> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   // Shown directly in the bottom nav bar (mobile) and always visible in the
   // rail (tablet/desktop) -- the screens a cashier touches constantly.
@@ -99,10 +98,10 @@ class AppScaffold extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     if (!authState) {
-      return child;
+      return widget.child;
     }
 
     final role = ref.watch(currentStaffRoleProvider);
@@ -138,7 +137,7 @@ class AppScaffold extends ConsumerWidget {
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
                 Expanded(
-                  child: _AnimatedTab(location: location, child: child),
+                  child: widget.child,
                 ),
               ],
             ),
@@ -162,7 +161,7 @@ class AppScaffold extends ConsumerWidget {
         // Deferring the close to the next frame avoids the race entirely.
         return Scaffold(
           key: _scaffoldKey,
-          body: _AnimatedTab(location: location, child: child),
+          body: widget.child,
           endDrawer: Drawer(
             child: SafeArea(
               child: ListView(

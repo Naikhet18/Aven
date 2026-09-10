@@ -22,20 +22,20 @@ void main() async {
   runApp(
     ProviderScope(
       overrides: [sharedPreferencesProvider.overrideWithValue(prefs)],
-      child: KhaoPiyoApp(prefs: prefs),
+      child: AvenApp(prefs: prefs),
     ),
   );
 }
 
-class KhaoPiyoApp extends ConsumerStatefulWidget {
+class AvenApp extends ConsumerStatefulWidget {
   final SharedPreferences prefs;
-  const KhaoPiyoApp({super.key, required this.prefs});
+  const AvenApp({super.key, required this.prefs});
 
   @override
-  ConsumerState<KhaoPiyoApp> createState() => _KhaoPiyoAppState();
+  ConsumerState<AvenApp> createState() => _AvenAppState();
 }
 
-class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
+class _AvenAppState extends ConsumerState<AvenApp> {
   // Built once (not per-build) using the SharedPreferences instance main()
   // already loaded, so the router's redirect can read it synchronously --
   // see the comment on buildAppRouter for why that matters.
@@ -67,10 +67,10 @@ class _KhaoPiyoAppState extends ConsumerState<KhaoPiyoApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'KhaoPiyo POS',
+      title: 'Aven POS',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
+      themeMode: ThemeMode.dark,
       routerConfig: _router,
       debugShowCheckedModeBanner: false,
     );

@@ -49,5 +49,5 @@ class DeviceIdentity {
     }
   }
 
-  String get deviceName => 'KhaoPiyo-$shortTag ($platformName)';
+  String get deviceName => 'Aven-$shortTag ($platformName)';
 }

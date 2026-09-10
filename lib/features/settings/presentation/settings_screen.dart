@@ -354,8 +354,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: 12),
           pairedDevicesAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (err, _) => Text('Error: $err'),
+            loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+            error: (err, _) => const Text('Failed to load bluetooth devices.', style: TextStyle(color: Colors.white54)),
             data: (devices) {
               if (devices.isEmpty) {
                 return const Text(

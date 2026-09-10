@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/features/tables/providers/tables_provider.dart';
 import 'package:khao_piyo_pos/features/tables/widgets/add_table_dialog.dart';
 import 'package:khao_piyo_pos/shared/models/restaurant_table.dart';
@@ -33,8 +34,8 @@ class ManageTablesScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Manage Tables')),
       body: tablesAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, _) => Center(child: Text('Error: $err')),
+        loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        error: (err, _) => const Center(child: Text('Failed to load tables.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
         data: (tables) {
           if (tables.isEmpty) {
             return Center(

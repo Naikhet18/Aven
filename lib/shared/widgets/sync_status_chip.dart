@@ -24,13 +24,13 @@ class SyncStatusChip extends ConsumerWidget {
         };
 
         return InkWell(
-          borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+          borderRadius: BorderRadius.circular(AppTheme.radius),
           onTap: () => _explain(context, status),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(AppTheme.pillRadius),
+              borderRadius: BorderRadius.circular(AppTheme.radius),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

@@ -18,16 +18,27 @@ final activeOrdersStreamProvider = StreamProvider<List<Order>>((ref) {
 });
 
 final activeOrdersWithItemsProvider = FutureProvider<List<OrderWithItems>>((ref) async {
-  // Watch the stream of active orders
-  final activeOrders = await ref.watch(activeOrdersStreamProvider.future);
+  final asyncOrders = ref.watch(activeOrdersStreamProvider);
+  final activeOrders = asyncOrders.valueOrNull;
+
+  if (activeOrders == null) {
+    // If we have no data yet, await the future to show loading.
+    final initialOrders = await ref.watch(activeOrdersStreamProvider.future);
+    return _fetchItemsForOrders(ref, initialOrders);
+  }
+
+  // We have the latest orders, fetch their items. 
+  // Because it's a FutureProvider, Riverpod automatically preserves the previous state 
+  // in the UI while this async operation runs.
+  return _fetchItemsForOrders(ref, activeOrders);
+});
+
+Future<List<OrderWithItems>> _fetchItemsForOrders(Ref ref, List<Order> orders) async {
   final repo = ref.read(orderRepositoryProvider);
-  
-  // For each order, fetch its items
   final ordersWithItems = <OrderWithItems>[];
-  for (final order in activeOrders) {
+  for (final order in orders) {
     final items = await repo.getOrderItems(order.id);
     ordersWithItems.add(OrderWithItems(order: order, items: items));
   }
-  
   return ordersWithItems;
-});
+}

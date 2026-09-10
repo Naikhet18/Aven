@@ -38,8 +38,8 @@ class ReportsScreen extends ConsumerWidget {
           Expanded(
             child: reportAsync.when(
               data: (report) => _buildReportContent(context, ref, report),
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, stack) => Center(child: Text('Error: $err')),
+              loading: () => const Center(child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+              error: (err, stack) => const Center(child: Text('Failed to load report.', textAlign: TextAlign.center, style: TextStyle(color: Colors.white54))),
             ),
           ),
         ],

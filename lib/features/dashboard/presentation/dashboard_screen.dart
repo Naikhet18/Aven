@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:khao_piyo_pos/core/theme/app_theme.dart';
 import 'package:khao_piyo_pos/core/utils/currency.dart';
 import 'package:khao_piyo_pos/features/billing/providers/billing_provider.dart';
@@ -17,13 +18,6 @@ import 'package:khao_piyo_pos/shared/widgets/trend_badge.dart';
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
-  String _greeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Good Morning';
-    if (hour < 17) return 'Good Afternoon';
-    return 'Good Evening';
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider);
@@ -31,170 +25,237 @@ class DashboardScreen extends ConsumerWidget {
     final activeOrdersAsync = ref.watch(activeOrdersStreamProvider);
     final unpaidOrdersAsync = ref.watch(unpaidOrdersStreamProvider);
     final lowStockAsync = ref.watch(lowStockIngredientsProvider);
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
+      backgroundColor: const Color(0xFF040404), // True OLED black
       body: SafeArea(
         child: RefreshIndicator(
+          color: AppTheme.primaryColor,
+          backgroundColor: const Color(0xFF1C1C1E),
           onRefresh: () async {
             ref.invalidate(dashboardComparisonProvider);
             ref.invalidate(lowStockIngredientsProvider);
           },
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(20.0),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Top Header (Settings Name & Sync)
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      settings.name.toUpperCase(),
+                      style: const TextStyle(
+                        color: Colors.white54,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 2.0,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SyncStatusChip(),
+                  ],
+                ).animate().fade(duration: 400.ms).slideY(begin: -0.2),
+                
+                const SizedBox(height: 32),
+
+                // Hero Revenue Section (matching UI Inspo big text)
+                comparisonAsync.when(
+                  data: (c) => AnimatedCounter(
+                    value: c.todayRevenue,
+                    formatter: (v) => Currency.format(v, symbol: settings.currencySymbol),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 56, // Even bigger
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -2.0,
+                      fontFeatures: [FontFeature.tabularFigures()],
+                    ),
+                  ),
+                  loading: () => Text('...', style: TextStyle(color: Colors.white.withValues(alpha: 0.1), fontSize: 56, fontWeight: FontWeight.w600))
+                      .animate(onPlay: (controller) => controller.repeat())
+                      .shimmer(duration: 1200.ms, color: Colors.white38),
+                  error: (_, _) => const Text('—', style: TextStyle(color: Colors.white, fontSize: 56, fontWeight: FontWeight.w600)),
+                ).animate(delay: 100.ms).fade(duration: 500.ms).slideX(begin: -0.1),
+                
+                const SizedBox(height: 8),
+
+                comparisonAsync.maybeWhen(
+                  data: (c) => Row(
+                    children: [
+                      TrendBadge(percent: c.revenueChangePercent, onTint: true),
+                      const SizedBox(width: 12),
+                      Text(
+                        '${c.todayOrders} orders today',
+                        style: const TextStyle(color: Colors.white54, fontSize: 13, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                  orElse: () => const SizedBox.shrink(),
+                ).animate(delay: 200.ms).fade(duration: 500.ms),
+
+                const SizedBox(height: 48),
+
+                // Quick Action Buttons
+                Row(
                   children: [
                     Expanded(
-                      child: Text(
-                        _greeting(),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
+                      flex: 6,
+                      child: PressableScale(
+                        onTap: () => context.go('/new-order'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryColor,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppTheme.primaryColor.withValues(alpha: 0.25),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'New Order',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(width: 12),
-                    const SyncStatusChip(),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                // The business name has no length limit the app controls --
-                // cap it to two lines so a long name can never balloon the
-                // header into most of the screen the way an uncapped
-                // display-size headline did.
-                Text(
-                  settings.name,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  "Here is what's happening at your business today.",
-                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Hero card: the day's headline number, given real visual
-                // weight (gradient, large type, live count-up) instead of
-                // being just another tile in a uniform grid.
-                _HeroSalesCard(
-                  comparisonAsync: comparisonAsync,
-                  currencySymbol: settings.currencySymbol,
-                  isDark: isDark,
-                ),
-
-                const SizedBox(height: 16),
-
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final crossAxisCount = constraints.maxWidth > 500 ? 3 : 1;
-                    // A fixed row height (not an aspect ratio) so the card's
-                    // fixed-height content -- icon, count-up number, title,
-                    // subtitle -- always fits regardless of column count or
-                    // screen width; an aspect ratio scales height with width,
-                    // which doesn't track fixed text content and overflows
-                    // on narrow phones.
-                    return GridView(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                        mainAxisExtent: crossAxisCount == 1 ? 118 : 172,
+                    Expanded(
+                      flex: 4,
+                      child: PressableScale(
+                        onTap: () => context.go('/orders'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1C1C1E),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Text(
+                            'All Orders',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
                       ),
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        _BentoStatCard(
-                          title: 'Active Orders',
-                          value: activeOrdersAsync.when(
-                            data: (orders) => orders.length.toDouble(),
-                            loading: () => null,
-                            error: (_, _) => null,
-                          ),
-                          subtitle: 'Being prepared right now',
-                          icon: Icons.receipt_long_rounded,
-                          color: AppTheme.warning,
-                          onTap: () => context.go('/kitchen'),
-                          horizontal: crossAxisCount == 1,
-                        ),
-                        _BentoStatCard(
-                          title: 'Low Stock',
-                          value: lowStockAsync.when(
-                            data: (items) => items.length.toDouble(),
-                            loading: () => null,
-                            error: (_, _) => null,
-                          ),
-                          subtitle: lowStockAsync.when(
-                            data: (items) => items.isEmpty ? 'All stocked up' : items.take(3).map((i) => i.name).join(', '),
-                            loading: () => '',
-                            error: (_, _) => 'Could not load',
-                          ),
-                          icon: Icons.inventory_2_rounded,
-                          color: AppTheme.error,
-                          onTap: () => context.go('/inventory'),
-                          horizontal: crossAxisCount == 1,
-                        ),
-                        _BentoStatCard(
-                          title: 'Unpaid',
-                          value: unpaidOrdersAsync.when(
-                            data: (orders) => orders.length.toDouble(),
-                            loading: () => null,
-                            error: (_, _) => null,
-                          ),
-                          subtitle: 'Awaiting payment',
-                          icon: Icons.payments_rounded,
-                          color: scheme.tertiary,
-                          onTap: () => context.go('/billing'),
-                          horizontal: crossAxisCount == 1,
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                    ),
+                  ],
+                ).animate(delay: 300.ms).fade(duration: 500.ms).slideY(begin: 0.1),
 
-                const SizedBox(height: 36),
+                const SizedBox(height: 12),
 
-                Text(
-                  'Quick Actions',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 12,
+                // More quick actions row
+                Row(
                   children: [
-                    _QuickActionButton(
-                      label: 'New POS Order',
-                      icon: Icons.point_of_sale_rounded,
-                      onTap: () => context.go('/new-order'),
-                      isPrimary: true,
+                    Expanded(
+                      child: PressableScale(
+                        onTap: () => context.go('/kitchen'),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1C1C1E),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.soup_kitchen_outlined, color: Colors.white70, size: 20),
+                              SizedBox(width: 8),
+                              Text('Kitchen', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                    _QuickActionButton(
-                      label: 'Kitchen Display',
-                      icon: Icons.soup_kitchen_rounded,
-                      onTap: () => context.go('/kitchen'),
-                    ),
-                    _QuickActionButton(
-                      label: 'Scan Table QR',
-                      icon: Icons.qr_code_scanner_rounded,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const QrScanScreen()),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: PressableScale(
+                        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const QrScanScreen())),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1C1C1E),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          alignment: Alignment.center,
+                          child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.qr_code_scanner_rounded, color: Colors.white70, size: 20),
+                              SizedBox(width: 8),
+                              Text('Scan', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                   ],
+                ).animate(delay: 400.ms).fade(duration: 500.ms).slideY(begin: 0.1),
+
+                const SizedBox(height: 48),
+
+                // Section Title
+                const _SectionHeader(title: 'Overview').animate(delay: 500.ms).fade().slideX(begin: -0.1),
+                
+                const SizedBox(height: 20),
+
+                // Horizontal Scrolling Cards
+                SizedBox(
+                  height: 220,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    clipBehavior: Clip.none,
+                    children: [
+                      _StatCard(
+                        title: 'ACTIVE\nORDERS',
+                        value: activeOrdersAsync.when(
+                          data: (o) => o.length.toDouble(),
+                          loading: () => null,
+                          error: (_, _) => -1.0,
+                        ),
+                        color: Colors.orangeAccent,
+                        icon: Icons.local_fire_department_rounded,
+                      ),
+                      const SizedBox(width: 16),
+                      _StatCard(
+                        title: 'UNPAID\nBILLS',
+                        value: unpaidOrdersAsync.when(
+                          data: (o) => o.length.toDouble(),
+                          loading: () => null,
+                          error: (_, _) => -1.0,
+                        ),
+                        color: Colors.blueAccent,
+                        icon: Icons.receipt_long_rounded,
+                      ),
+                      const SizedBox(width: 16),
+                      _StatCard(
+                        title: 'LOW\nSTOCK',
+                        value: lowStockAsync.when(
+                          data: (i) => i.length.toDouble(),
+                          loading: () => null,
+                          error: (_, _) => -1.0,
+                        ),
+                        color: AppTheme.primaryColor,
+                        icon: Icons.warning_amber_rounded,
+                      ),
+                    ].animate(interval: 100.ms, delay: 600.ms).fade(duration: 400.ms).slideY(begin: 0.2),
+                  ),
                 ),
               ],
             ),
@@ -205,245 +266,87 @@ class DashboardScreen extends ConsumerWidget {
   }
 }
 
-class _HeroSalesCard extends StatelessWidget {
-  final AsyncValue<DashboardComparison> comparisonAsync;
-  final String currencySymbol;
-  final bool isDark;
+class _SectionHeader extends StatelessWidget {
+  final String title;
 
-  const _HeroSalesCard({required this.comparisonAsync, required this.currencySymbol, required this.isDark});
+  const _SectionHeader({required this.title});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: AppTheme.heroGradient(dark: isDark),
-        borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: AppTheme.primaryColor.withValues(alpha: 0.28),
-            blurRadius: 28,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: Stack(
-          children: [
-            // A faint oversized icon as a signature decorative touch --
-            // pure Flutter, zero asset weight, reads as intentional brand
-            // texture rather than a placeholder.
-            Positioned(
-              right: -18,
-              bottom: -24,
-              child: Icon(Icons.storefront_rounded, size: 140, color: Colors.white.withValues(alpha: 0.08)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Today's Sales",
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.78), fontWeight: FontWeight.w600, fontSize: 15),
-                  ),
-                  const SizedBox(height: 10),
-                  comparisonAsync.when(
-                    data: (c) => AnimatedCounter(
-                      value: c.todayRevenue,
-                      formatter: (v) => Currency.format(v, symbol: currencySymbol),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 40,
-                        fontWeight: FontWeight.bold,
-                        fontFeatures: [FontFeature.tabularFigures()],
-                        height: 1.0,
-                      ),
-                    ),
-                    loading: () => const Text('…', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
-                    error: (_, _) => const Text('—', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.bold)),
-                  ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      comparisonAsync.maybeWhen(
-                        data: (c) => TrendBadge(percent: c.revenueChangePercent, onTint: true),
-                        orElse: () => const SizedBox.shrink(),
-                      ),
-                      const SizedBox(width: 8),
-                      Text('vs yesterday', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 13)),
-                      const Spacer(),
-                      comparisonAsync.maybeWhen(
-                        data: (c) => Row(
-                          children: [
-                            const Icon(Icons.receipt_long_rounded, size: 16, color: Colors.white70),
-                            const SizedBox(width: 6),
-                            Text(
-                              '${c.todayOrders} orders',
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 13, fontFeatures: [FontFeature.tabularFigures()]),
-                            ),
-                          ],
-                        ),
-                        orElse: () => const SizedBox.shrink(),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+    return Text(
+      title,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.5,
       ),
     );
   }
 }
 
-class _BentoStatCard extends StatelessWidget {
+class _StatCard extends StatelessWidget {
   final String title;
   final double? value;
-  final String subtitle;
-  final IconData icon;
   final Color color;
-  final VoidCallback? onTap;
-  final bool horizontal;
+  final IconData icon;
 
-  const _BentoStatCard({
+  const _StatCard({
     required this.title,
     required this.value,
-    required this.subtitle,
-    required this.icon,
     required this.color,
-    this.onTap,
-    this.horizontal = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final v = value;
-
-    final iconBadge = Container(
-      padding: const EdgeInsets.all(9),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Icon(icon, color: color, size: 22),
-    );
-
-    final counter = v == null
-        ? const Text('…', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold))
-        : AnimatedCounter(
-            value: v,
-            formatter: (n) => n.toInt().toString(),
-            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, fontFeatures: [FontFeature.tabularFigures()]),
-          );
-
-    final titleText = Text(title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: scheme.onSurfaceVariant));
-    final subtitleText = Text(
-      subtitle,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: TextStyle(fontSize: 11, color: scheme.onSurfaceVariant.withValues(alpha: 0.75)),
-    );
-
-    final content = horizontal
-        ? Row(
-            children: [
-              iconBadge,
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [counter, const SizedBox(height: 2), titleText, const SizedBox(height: 2), subtitleText],
-                ),
-              ),
-            ],
-          )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              iconBadge,
-              const SizedBox(height: 12),
-              counter,
-              const SizedBox(height: 2),
-              titleText,
-              const SizedBox(height: 2),
-              subtitleText,
-            ],
-          );
-
-    return PressableScale(
-      onTap: onTap,
-      scaleDown: 0.96,
-      semanticLabel: onTap == null ? null : '$title, ${v?.toInt() ?? '—'}, $subtitle',
-      child: Container(
-        decoration: BoxDecoration(
-          color: scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: scheme.outlineVariant.withValues(alpha: 0.25)),
-        ),
-        padding: const EdgeInsets.all(16.0),
-        child: content,
-      ),
-    );
-  }
-}
-
-class _QuickActionButton extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  final VoidCallback onTap;
-  final bool isPrimary;
-
-  const _QuickActionButton({
-    required this.label,
     required this.icon,
-    required this.onTap,
-    this.isPrimary = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final v = value;
     return PressableScale(
-      onTap: onTap,
-      semanticLabel: label,
+      onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 15),
+        width: 160,
+        padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          gradient: isPrimary
-              ? LinearGradient(colors: [AppTheme.primaryColor, Color.lerp(AppTheme.primaryColor, Colors.black, 0.25)!])
-              : null,
-          color: isPrimary ? null : scheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(AppTheme.pillRadius),
-          border: Border.all(
-            color: isPrimary ? Colors.transparent : scheme.outlineVariant.withValues(alpha: 0.4),
-          ),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 6),
-                  )
-                ]
-              : [],
+          color: const Color(0xFF1C1C1E), // Dark grey from UI inspo
+          borderRadius: BorderRadius.circular(24),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: isPrimary ? Colors.white : scheme.primary, size: 20),
-            const SizedBox(width: 10),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 28),
+            ),
+            const Spacer(),
+            v == null
+                ? Text('...', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white.withValues(alpha: 0.2)))
+                    .animate(onPlay: (c) => c.repeat()).shimmer()
+                : v < 0
+                    ? const Text('—', style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Colors.white54))
+                    : AnimatedCounter(
+                        value: v,
+                        formatter: (n) => n.toInt().toString(),
+                        style: const TextStyle(
+                          fontSize: 40,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                          fontFeatures: [FontFeature.tabularFigures()],
+                          height: 1.0,
+                        ),
+                      ),
+            const SizedBox(height: 8),
             Text(
-              label,
-              style: TextStyle(
-                color: isPrimary ? Colors.white : scheme.onSurface,
-                fontWeight: FontWeight.bold,
-                fontSize: 15,
+              title,
+              style: const TextStyle(
+                color: Colors.white54,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+                height: 1.2,
               ),
             ),
           ],

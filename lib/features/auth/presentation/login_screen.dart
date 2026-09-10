@@ -8,6 +8,7 @@ import 'package:khao_piyo_pos/features/auth/presentation/scan_join_code_screen.d
 import 'package:khao_piyo_pos/features/auth/providers/staff_role_provider.dart';
 import 'package:khao_piyo_pos/shared/models/restaurant_table.dart';
 import 'package:khao_piyo_pos/shared/providers/global_providers.dart';
+import 'package:khao_piyo_pos/shared/widgets/aven_logo.dart';
 
 class _BusinessOption {
   final String id;
@@ -75,10 +76,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
           ? await client.auth.signUp(email: email, password: password)
           : await client.auth.signInWithPassword(email: email, password: password);
 
-      if (response.user == null) {
-        setState(() => _errorMessage = _isSignUp
-            ? 'Check your email to confirm your account, then sign in.'
-            : 'Sign in failed.');
+      if (response.session == null) {
+        setState(() {
+          if (_isSignUp) {
+            _errorMessage = 'Check your email to confirm your account, then sign in.';
+            _isSignUp = false; // switch back to sign in
+          } else {
+            _errorMessage = 'Sign in failed. Please check your credentials.';
+          }
+        });
         return;
       }
 
@@ -250,7 +256,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _step == _Step.landing ? null : AppBar(
-        title: const Text('KhaoPiyo POS'),
+        title: const Text('Aven POS'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           tooltip: 'Back',
@@ -264,15 +270,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 420),
           child: SingleChildScrollView(
-            child: _step == _Step.landing
-                ? Padding(padding: const EdgeInsets.all(24), child: _buildLandingStep())
-                : Card(
-                    margin: const EdgeInsets.all(16),
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: _buildStep(),
-                    ),
-                  ),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: _buildStep(),
           ),
         ),
       ),
@@ -299,11 +298,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const SizedBox(height: 48),
-        Icon(Icons.storefront_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(height: 24),
+        const AvenLogo(size: 76),
         const SizedBox(height: 16),
         Text(
-          'KhaoPiyo POS',
+          'Aven',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
@@ -447,13 +446,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       children: [
         const Text('Select a business', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
         const SizedBox(height: 24),
-        ..._availableBusinesses.map((b) => Card(
-              child: ListTile(
-                title: Text(b.name),
-                subtitle: Text(b.role),
-                trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () => _selectBusiness(b.id, b.role),
+        ..._availableBusinesses.map((b) => ListTile(
+              title: Text(b.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+              subtitle: Text(b.role, style: const TextStyle(color: Colors.white54)),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.white24),
+              onTap: () => _selectBusiness(b.id, b.role),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: const BorderSide(color: Colors.white10),
               ),
+              tileColor: Colors.black,
             )),
         const SizedBox(height: 8),
         TextButton.icon(
@@ -520,10 +522,11 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.errorContainer,
+        color: const Color(0xFFF91133).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFF91133).withValues(alpha: 0.3)),
       ),
-      child: Text(message, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer)),
+      child: Text(message, style: const TextStyle(color: Color(0xFFF91133), fontWeight: FontWeight.w600)),
     );
   }
 }
