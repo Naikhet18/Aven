@@ -19,6 +19,31 @@
 
 ---
 
+# 📲 Download the App
+
+<p align="center">
+
+### 🤖 Android
+
+<a href="https://github.com/Naikhet18/Aven/releases/latest/download/Aven-v1.0.0-android.apk">
+  <img src="https://img.shields.io/badge/Download%20APK-Android-brightgreen?style=for-the-badge&logo=android">
+</a>
+
+> **Android:** Download the APK and install it. *(If prompted, allow installation from unknown sources in your settings).*
+
+### 🍎 iOS
+
+<a href="#">
+  <img src="https://img.shields.io/badge/Download%20on%20the-App%20Store-black?style=for-the-badge&logo=apple">
+</a>
+
+> **iOS:** `YOUR_APP_STORE_LINK` | `YOUR_TESTFLIGHT_LINK`
+> *(iOS distribution coming soon. App Store/TestFlight placeholders to be updated upon release).*
+
+</p>
+
+---
+
 ## 🎥 See It In Action
 
 <p align="center">
@@ -120,30 +145,76 @@ flutter build apk --release --dart-define-from-file=.env
 
 ---
 
-## 📲 Get the App
+## ✅ First Release Checklist
 
-<a href="#">
-  <img src="https://img.shields.io/badge/Google_Play-COMING_SOON_🚀-414141?style=for-the-badge&logo=google-play&logoColor=white">
-</a>
+### 🤖 Android
+- [x] Production/release APK builds successfully
+- [x] APK installs successfully on a real Android device
+- [x] App name is correct
+- [x] App icon is correct
+- [x] Version name is correct
+- [x] Version code is correct
+- [ ] Release APK is attached to GitHub Release
+- [ ] APK download button works from README
+- [ ] GitHub Actions release workflow tested
+- [ ] Signing configuration verified
+- [ ] Google Play Store listing created
+- [ ] Google Play Store screenshots uploaded
+- [ ] Google Play Store description added
+- [ ] Privacy policy URL added if required
+- [ ] Content rating completed
+- [ ] App published to Google Play
 
-<a href="#">
-  <img src="https://img.shields.io/badge/App_Store-COMING_SOON_🚀-000000?style=for-the-badge&logo=apple&logoColor=white">
-</a>
+### 🍎 iOS
+- [x] iOS build succeeds
+- [x] Bundle identifier is correct
+- [x] App name is correct
+- [x] App icon is correct
+- [x] Version/build number is correct
+- [ ] Signing configuration verified
+- [ ] App tested on a real iPhone
+- [ ] TestFlight configured
+- [ ] TestFlight invitation link added to README
+- [ ] App Store listing created
+- [ ] App Store screenshots uploaded
+- [ ] App Store description added
+- [ ] Privacy information completed
+- [ ] App submitted for review
+- [ ] App approved
+- [ ] App Store download link added to README
 
----
+### 🐙 GitHub
+- [x] Repository description is polished
+- [x] README is complete
+- [ ] Screenshots added
+- [x] Demo/GIF added if available
+- [ ] GitHub topics/tags added
+- [ ] LICENSE added
+- [x] `.gitignore` verified
+- [x] No API keys/secrets committed
+- [x] GitHub Actions verified
+- [ ] First GitHub Release created
+- [ ] Release notes written
+- [ ] APK attached to release
+- [ ] README download buttons tested
 
-## 🗺️ Roadmap
+### 🔐 Security
+- [x] No secrets committed to Git
+- [x] `.env` files excluded from Git
+- [x] Production API configuration verified
+- [x] Debug logging disabled where appropriate
+- [x] Release build verified
+- [x] Required security/privacy documentation added
 
-Things currently living rent-free in my backlog:
-
-- [x] Initial release
-- [x] God-level OLED UI
-- [x] Supabase Auth & Realtime
-- [x] Bluetooth Thermal Printing
-- [x] QR Staff Onboarding
-- [ ] Automated Inventory deduction
-- [ ] AI sales forecasting (because why not)
-- [ ] Push to Play Store / App Store
+### 📸 Store Assets
+- [x] App icon
+- [ ] Android screenshots
+- [ ] iPhone screenshots
+- [ ] Feature graphic if required
+- [ ] App Store promotional assets if required
+- [ ] App description
+- [ ] Short description
+- [ ] Keywords/categories
 
 ---
 
@@ -185,6 +256,23 @@ Built with questionable amounts of caffeine by **Naikhet18**.
 
 If this app somehow breaks your thermal printer, open an Issue.
 For general chats or feature requests, hit up the Discussions tab.
+
+---
+
+## 🎯 Final "Publish This Thing" Checklist
+
+```text
+☐ Build release
+☐ Test Android APK
+☐ Test iOS build
+☐ Create GitHub Release
+☐ Upload APK
+☐ Publish Android app
+☐ Publish iOS app / TestFlight
+☐ Add store links to README
+☐ Verify every download button
+☐ Ship it 🚀
+```
 
 ---
 

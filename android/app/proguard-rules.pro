@@ -9,3 +9,8 @@
 # Google ML Kit barcode scanning (mobile_scanner) loads model classes reflectively.
 -keep class com.google.mlkit.** { *; }
 -keep class com.google.android.gms.internal.mlkit_vision_barcode.** { *; }
+
+# SplitCompat / Play Core rules
+-dontwarn com.google.android.play.core.splitcompat.**
+-dontwarn com.google.android.play.core.splitinstall.**
+-dontwarn com.google.android.play.core.tasks.**

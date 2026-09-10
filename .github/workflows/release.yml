@@ -1,0 +1,52 @@
+name: Release App
+
+on:
+  push:
+    tags:
+      - 'v*' # Trigger workflow on version tags, e.g., v1.0.0
+
+jobs:
+  build-android:
+    name: Build & Release Android APK
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          flutter-version: '3.13.2' # Adjust if needed
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Create .env file for Release
+        # GitHub Secrets should contain SUPABASE_URL and SUPABASE_ANON_KEY
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> .env
+
+      - name: Build Android Release APK
+        run: flutter build apk --release --dart-define-from-file=.env
+
+      - name: Rename APK
+        run: |
+          # The built APK is at build/app/outputs/flutter-apk/app-release.apk
+          mv build/app/outputs/flutter-apk/app-release.apk Aven-${{ github.ref_name }}-android.apk
+
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Aven-${{ github.ref_name }}-android.apk
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

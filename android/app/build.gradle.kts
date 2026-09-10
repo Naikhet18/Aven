@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.khao_piyo.khao_piyo_pos"
     compileSdk = flutter.compileSdkVersion
-    // ndkVersion = flutter.ndkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -48,14 +48,14 @@ android {
         }
     }
 
-    splits {
-        abi {
-            isEnable = true
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = true // still produce one universal APK for sideloading/testing
-        }
-    }
+    // splits {
+    //     abi {
+    //         isEnable = true
+    //         reset()
+    //         include("armeabi-v7a", "arm64-v8a", "x86_64")
+    //         isUniversalApk = true // still produce one universal APK for sideloading/testing
+    //     }
+    // }
 }
 
 kotlin {
