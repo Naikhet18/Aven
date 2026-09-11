@@ -68,7 +68,7 @@ class BillingScreen extends ConsumerWidget {
           }
 
           return ListView.separated(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.paddingOf(context).bottom),
             itemCount: orders.length,
             separatorBuilder: (_, _) => const SizedBox(height: 16),
             itemBuilder: (context, index) {

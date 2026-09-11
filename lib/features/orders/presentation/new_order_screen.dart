@@ -497,7 +497,7 @@ class _CartSection extends ConsumerWidget {
 
           // Totals and Checkout
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.paddingOf(context).bottom),
             decoration: const BoxDecoration(
               border: Border(
                 top: BorderSide(color: Colors.white10),

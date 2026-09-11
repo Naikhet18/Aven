@@ -261,6 +261,8 @@ class OrderDetailsScreen extends ConsumerWidget {
                   ],
                 ],
               ).animate().fade(delay: 500.ms).slideY(begin: 0.2),
+              
+              SizedBox(height: MediaQuery.paddingOf(context).bottom),
             ],
           );
         },

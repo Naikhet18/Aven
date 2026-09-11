@@ -93,99 +93,101 @@ class _CheckoutDialogState extends ConsumerState<CheckoutDialog> {
               _amountController.text = remaining.toStringAsFixed(2);
             }
 
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Checkout Order #${widget.order.orderNumber}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.white54),
-                      onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF040404),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Column(
+            return SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Total Bill', style: TextStyle(color: Colors.white54, fontSize: 16)),
-                          Text(Currency.format(widget.order.total, symbol: settings.currencySymbol), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                        ],
-                      ),
-                      if (payments.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text('Already Paid', style: TextStyle(color: Colors.white54, fontSize: 16)),
-                            Text('-${Currency.format(totalPaid, symbol: settings.currencySymbol)}', style: const TextStyle(color: Color(0xFF34C759), fontSize: 16, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        ...payments.map((p) => Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Text('via ${p.paymentMethod}', style: const TextStyle(fontSize: 13, color: Colors.white38)),
-                                ),
-                                Text(Currency.format(p.amount, symbol: settings.currencySymbol), style: const TextStyle(fontSize: 13, color: Colors.white38)),
-                              ],
-                            )),
-                      ],
-                      const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.white10)),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text('Balance Due', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
-                          Text(
-                            Currency.format(remaining.toDouble(), symbol: settings.currencySymbol),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w900,
-                              fontSize: 28,
-                              color: AppTheme.primaryColor,
-                            ),
-                          ),
-                        ],
+                      Text('Checkout Order #${widget.order.orderNumber}', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colors.white54),
+                        onPressed: _isProcessing ? null : () => Navigator.of(context).pop(),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _amountController,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  decoration: InputDecoration(
-                    labelText: 'Amount to collect',
-                    labelStyle: const TextStyle(color: Colors.white54),
-                    prefixText: '${settings.currencySymbol} ',
-                    prefixStyle: const TextStyle(color: Colors.white, fontSize: 20),
-                    filled: true,
-                    fillColor: Colors.white.withValues(alpha: 0.05),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryColor)),
+                  const SizedBox(height: 24),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF040404),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Total Bill', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                            Text(Currency.format(widget.order.total, symbol: settings.currencySymbol), style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                        if (payments.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Already Paid', style: TextStyle(color: Colors.white54, fontSize: 16)),
+                              Text('-${Currency.format(totalPaid, symbol: settings.currencySymbol)}', style: const TextStyle(color: Color(0xFF34C759), fontSize: 16, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          ...payments.map((p) => Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text('via ${p.paymentMethod}', style: const TextStyle(fontSize: 13, color: Colors.white38)),
+                                  ),
+                                  Text(Currency.format(p.amount, symbol: settings.currencySymbol), style: const TextStyle(fontSize: 13, color: Colors.white38)),
+                                ],
+                              )),
+                        ],
+                        const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider(height: 1, color: Colors.white10)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text('Balance Due', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18)),
+                            Text(
+                              Currency.format(remaining.toDouble(), symbol: settings.currencySymbol),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w900,
+                                fontSize: 28,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
-                  enabled: !_isProcessing,
-                ),
-                const SizedBox(height: 24),
-                const Text('Select Payment Method', style: TextStyle(color: Colors.white54, fontSize: 14)),
-                const SizedBox(height: 12),
-                Row(
-                  children: _methodButtons(remaining.toDouble()).map((b) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: b))).toList(),
-                ),
-              ],
+                  const SizedBox(height: 24),
+                  TextField(
+                    controller: _amountController,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      labelText: 'Amount to collect',
+                      labelStyle: const TextStyle(color: Colors.white54),
+                      prefixText: '${settings.currencySymbol} ',
+                      prefixStyle: const TextStyle(color: Colors.white, fontSize: 20),
+                      filled: true,
+                      fillColor: Colors.white.withValues(alpha: 0.05),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppTheme.primaryColor)),
+                    ),
+                    enabled: !_isProcessing,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text('Select Payment Method', style: TextStyle(color: Colors.white54, fontSize: 14)),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: _methodButtons(remaining.toDouble()).map((b) => Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: b))).toList(),
+                  ),
+                ],
+              ),
             );
           },
         ),
