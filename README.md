@@ -195,14 +195,6 @@ flutter run --dart-define-from-file=.env
 - [ ] Confirm SideStore refresh works
 - [ ] Test POS with real restaurant workflow
 
-### 🔐 Security
-- [x] No API keys committed
-- [x] No Supabase service-role key exposed
-- [x] No Apple credentials committed
-- [x] No signing certificates/private keys committed
-- [x] `.env` files ignored
-- [x] Production configuration verified
-
 ---
 
 ## 🤝 Contributing
