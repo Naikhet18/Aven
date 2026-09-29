@@ -6,7 +6,6 @@
   <p>
     <img src="https://img.shields.io/badge/Platform-Android%20%7C%20iOS-A2A9B6?style=for-the-badge&logo=flutter" alt="Platforms" />
     <img src="https://img.shields.io/badge/Built_With-Flutter%20%7C%20Supabase-040404?style=for-the-badge" alt="Stack" />
-    <img src="https://img.shields.io/github/stars/Naikhet18/Aven?style=for-the-badge&color=FFD700" alt="Stars" />
     <img src="https://img.shields.io/github/license/Naikhet18/Aven?style=for-the-badge&color=414141" alt="License" />
   </p>
 </div>
